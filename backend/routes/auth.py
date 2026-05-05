@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from database import SessionLocal
 from models import User
-from utils.mail import send_otp_email_sync
+from utils.mail import send_otp_email_sync, send_otp_email_async
 
 auth_bp = Blueprint("auth", __name__)
 
