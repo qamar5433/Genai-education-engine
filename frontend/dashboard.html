@@ -320,6 +320,8 @@ const RECOS = [
       document.getElementById('course-desc').textContent = 'Topic: ' + d.active_course.topic + ' · ' + d.active_course.completed_units + '/' + d.active_course.total_units + ' units';
       document.getElementById('course-pct').textContent = d.active_course.progress + '%';
       document.getElementById('last-active').textContent = 'Last active: ' + d.active_course.last_active;
+      const resBtn = document.querySelector('.continue-card .btn');
+      if(resBtn) resBtn.href = `learning-path.html?course=${d.active_course.id}`;
       setTimeout(()=>{ document.getElementById('course-bar').style.width = d.active_course.progress + '%'; }, 100);
     } else {
       document.getElementById('course-title').textContent = "No active courses";

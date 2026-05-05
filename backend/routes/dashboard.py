@@ -25,7 +25,7 @@ def get_dashboard():
             latest = max(enrollments, key=lambda e: e.last_active)
             c = db.query(Course).filter_by(id=latest.course_id).first()
             active_course = {
-                "title": c.title, "topic": c.topic, "progress": latest.progress_pct,
+                "id": c.id, "title": c.title, "topic": c.topic, "progress": latest.progress_pct,
                 "completed_units": latest.completed_units, "total_units": c.total_units,
                 "icon": c.icon, "color": c.color,
                 "last_active": latest.last_active.strftime("%Y-%m-%d %H:%M")

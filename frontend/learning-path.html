@@ -496,7 +496,8 @@
       try {
         const res = await API.post('/api/content/generate', {
           topic: course.topic,
-          type: 'notes'
+          type: 'notes',
+          course_id: courseId
         });
         content.textContent = res.content;
         document.getElementById('notes-dl-btn').onclick = () => {

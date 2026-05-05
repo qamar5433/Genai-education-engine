@@ -1,7 +1,10 @@
 from flask import Blueprint, request, jsonify, session, Response, stream_with_context
 import json
 import sys, os
+from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from database import SessionLocal
+from models import Enrollment, User
 
 content_bp = Blueprint("content", __name__)
 
@@ -12,12 +15,27 @@ def generate():
     data         = request.get_json() or {}
     topic        = data.get("topic", "").strip()
     content_type = data.get("type", "notes")
+    course_id    = data.get("course_id")
     if not topic:
         return jsonify({"error": "Topic is required"}), 400
-    if len(topic) > 200:
-        return jsonify({"error": "Topic too long"}), 400
-    if content_type not in ("notes", "summary", "examples", "case_study", "deep_research"):
-        return jsonify({"error": "Invalid content type"}), 400
+    
+    # Update activity if course_id provided
+    if course_id:
+        try:
+            cid = int(course_id)
+            db = SessionLocal()
+            try:
+                enr = db.query(Enrollment).filter_by(user_id=session["user_id"], course_id=cid).first()
+                if enr:
+                    enr.last_active = datetime.utcnow()
+                    # Tiny XP bonus for reading
+                    user = db.query(User).filter_by(id=session["user_id"]).first()
+                    if user: user.xp += 5
+                    db.commit()
+            finally:
+                db.close()
+        except (ValueError, TypeError):
+            pass
 
     try:
         from ai_client import generate_content_ai
