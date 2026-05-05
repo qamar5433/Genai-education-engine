@@ -218,15 +218,15 @@
             <h2 id="notes-title" style="font-weight:800; margin-bottom:0.25rem">Course Notes</h2>
             <p id="notes-subtitle" class="muted" style="font-size:0.8rem">Curated study material for this module</p>
           </div>
-          <div style="display:flex; gap:0.5rem">
-             <button onclick="showView('list')" class="btn btn-secondary" style="padding:.4rem .75rem; font-size:.75rem">Quizzes</button>
+          <div style="display:flex; gap:0.5rem; align-items:center">
+             <div id="notes-progress-mini" style="font-size:.75rem; font-weight:700; color:var(--primary); margin-right:.5rem"></div>
              <button id="notes-dl-btn" class="btn btn-ghost" style="padding:.4rem .75rem" title="Save as Text"><span class="material-symbols-outlined" style="font-size:1.2rem">download</span></button>
           </div>
         </div>
         <div id="notes-content" class="card" style="padding:1.75rem; max-height:60vh; overflow-y:auto; line-height:1.7; background:var(--surface-low); border:1px solid var(--border); border-radius:var(--radius-lg); font-size:0.95rem; white-space:pre-wrap"></div>
         <div style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center">
-          <p class="muted" style="font-size:0.75rem">💡 Pro Tip: Read thoroughly before taking the quiz to boost your score!</p>
-          <button class="btn btn-primary" onclick="showView('list')">Go to Quizzes</button>
+          <p class="muted" style="font-size:0.75rem">💡 Pro Tip: Mark units as complete to unlock achievements and track your path!</p>
+          <button id="mark-complete-btn" class="btn btn-primary" onclick="markAsComplete()">Mark as Complete ✓</button>
         </div>
       </div>
     </div>
@@ -486,7 +486,16 @@
     async function openNotes(courseId) {
       const course = allData.enrolled.find(c => c.id === courseId);
       if(!course) return;
+
+      selectedCourseId = courseId;
       document.getElementById('notes-title').textContent = course.title + ' Notes';
+      const progMini = document.getElementById('notes-progress-mini');
+      const btn = document.getElementById('mark-complete-btn');
+      
+      progMini.textContent = `${course.progress_pct}% Completed`;
+      btn.disabled = course.progress_pct >= 100;
+      btn.textContent = course.progress_pct >= 100 ? 'Course Finished' : 'Mark as Complete ✓';
+
       document.getElementById('quiz-overlay').classList.add('active');
       showView('notes');
       
@@ -508,6 +517,30 @@
           URL.revokeObjectURL(url);
         };
       } catch(e) { content.innerHTML = '<p class="error">Failed to load notes.</p>'; }
+    }
+
+    async function markAsComplete() {
+        const btn = document.getElementById('mark-complete-btn');
+        const progMini = document.getElementById('notes-progress-mini');
+        
+        btn.disabled = true;
+        btn.textContent = 'Updating...';
+        
+        try {
+            const d = await API.post('/api/courses/complete_unit', { course_id: selectedCourseId });
+            showToast(`Unit completed! +${d.xp_earned} XP`, 'success');
+            
+            progMini.textContent = `${d.progress_pct}% Completed`;
+            btn.disabled = d.progress_pct >= 100;
+            btn.textContent = d.progress_pct >= 100 ? 'Course Finished' : 'Mark as Complete ✓';
+            
+            // Refresh main UI
+            await init();
+        } catch (e) {
+            showToast(e.message || 'Update failed', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Mark as Complete ✓';
+        }
     }
 
     function showView(v) {

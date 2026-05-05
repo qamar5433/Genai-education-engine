@@ -95,3 +95,49 @@ def enroll_in_course(course_id):
         return jsonify({"error": str(e)}), 500
     finally:
         db.close()
+@courses_bp.route("/api/courses/complete_unit", methods=["POST"])
+def complete_unit():
+    uid = session.get("user_id")
+    if not uid:
+        return jsonify({"error": "Not authenticated"}), 401
+    
+    data = request.get_json()
+    course_id = data.get("course_id")
+    if not course_id:
+        return jsonify({"error": "Course ID required"}), 400
+        
+    db = SessionLocal()
+    try:
+        enr = db.query(Enrollment).filter_by(user_id=uid, course_id=course_id).first()
+        if not enr:
+            return jsonify({"error": "Enrollment not found"}), 404
+            
+        course = db.query(Course).filter_by(id=course_id).first()
+        if not course:
+             return jsonify({"error": "Course not found"}), 404
+
+        # Increment units if not already at max
+        if enr.completed_units < course.total_units:
+            enr.completed_units += 1
+            # Update progress based on units
+            enr.progress_pct = (enr.completed_units / course.total_units) * 100
+        
+        enr.last_active = datetime.utcnow()
+        
+        # Award XP for completing a unit
+        user = db.query(User).filter_by(id=uid).first()
+        if user:
+            user.xp += 50
+            
+        db.commit()
+        return jsonify({
+            "success": True, 
+            "completed_units": enr.completed_units, 
+            "progress_pct": round(enr.progress_pct, 1),
+            "xp_earned": 50
+        }), 200
+    except Exception as e:
+        db.rollback()
+        return jsonify({"error": str(e)}), 500
+    finally:
+        db.close()
