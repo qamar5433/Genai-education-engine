@@ -66,11 +66,18 @@ def static_files(filename):
 
 @app.route("/api/health", methods=["GET"])
 def health():
-    return {"status": "ok", "message": "GENAI EDUCANTION ENGINE API running"}, 200
+    return {"status": "ok", "message": "GENAI EDUCATION ENGINE API running"}, 200
 
 # Initialize DB on startup
 with app.app_context():
     init_db()
+    from database import SessionLocal
+    from seed import ensure_courses
+    db = SessionLocal()
+    try:
+        ensure_courses(db)
+    finally:
+        db.close()
 
 if __name__ == "__main__":
     print("GENAI EDUCANTION ENGINE server starting...")

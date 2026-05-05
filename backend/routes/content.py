@@ -28,6 +28,9 @@ def generate():
                 enr = db.query(Enrollment).filter_by(user_id=session["user_id"], course_id=cid).first()
                 if enr:
                     enr.last_active = datetime.utcnow()
+                    # Real-time progress boost for reading (2% per read, capped)
+                    enr.progress_pct = min(100.0, (enr.progress_pct or 0) + 2.0)
+                    
                     # Tiny XP bonus for reading
                     user = db.query(User).filter_by(id=session["user_id"]).first()
                     if user: user.xp += 5
