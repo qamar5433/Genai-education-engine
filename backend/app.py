@@ -34,6 +34,7 @@ from routes.achievements import achievements_bp
 from routes.notifications import notifications_bp
 from routes.upload import upload_bp
 from routes.mindmap import mindmap_bp
+from routes.courses import courses_bp
 
 app.register_blueprint(mindmap_bp)
 app.register_blueprint(auth_bp)
@@ -50,6 +51,7 @@ app.register_blueprint(library_bp)
 app.register_blueprint(achievements_bp)
 app.register_blueprint(notifications_bp)
 app.register_blueprint(upload_bp)
+app.register_blueprint(courses_bp)
 
 # Serve frontend static files
 FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")

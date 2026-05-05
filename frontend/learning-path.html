@@ -339,19 +339,6 @@
       }
     }
 
-    async function enrollCourse(id, btn) {
-      if(btn) { btn.disabled = true; btn.textContent = 'Enrolling...'; }
-      try {
-        const res = await API.post(`/api/courses/${id}/enroll`);
-        showToast(res.message, 'success');
-        selectedCourseId = id; // Auto-select the newly enrolled course
-        await init(); 
-      } catch (e) {
-        showToast(e.message || 'Enrollment failed', 'error');
-        if(btn) { btn.disabled = false; btn.textContent = 'Enroll'; }
-      }
-    }
-
     // --- Quiz Integration ---
     let quizState = { active: false, quizzes: [], current: null, questions: [], index: 0, answers: {}, startTime: 0, timer: null };
 

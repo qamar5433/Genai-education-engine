@@ -73,7 +73,12 @@
       });
       window.location.href = '/dashboard.html';
     } catch(err) {
-      if (err.status === 401) {
+      if (err.requires_verification) {
+        showToast("Email not verified. Redirecting to verification page...", "info");
+        setTimeout(() => {
+          window.location.href = `/signup.html?email=${encodeURIComponent(currentEmail)}&verify=1`;
+        }, 1500);
+      } else if (err.status === 401) {
         errEl.textContent = 'Invalid email or password.';
       } else {
         errEl.textContent = err.message || 'Login failed. Please try again.';

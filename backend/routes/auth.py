@@ -22,7 +22,20 @@ def signup():
         return jsonify({"error": "Password must be at least 6 characters"}), 400
     db = SessionLocal()
     try:
-        if db.query(User).filter_by(email=email).first():
+        existing_user = db.query(User).filter_by(email=email).first()
+        if existing_user:
+            if not existing_user.is_verified:
+                # If not verified, allow them to go to OTP screen
+                otp_code = f"{random.randint(100000, 999999)}"
+                existing_user.otp_code = otp_code
+                existing_user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+                success, _ = send_otp_email_sync(email, otp_code)
+                db.commit()
+                return jsonify({
+                    "message": "Email already registered but not verified. A new code has been sent.",
+                    "requires_verification": True,
+                    "email": email
+                }), 200
             return jsonify({"error": "Email already registered"}), 409
         pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         otp_code = f"{random.randint(100000, 999999)}"
@@ -42,7 +55,9 @@ def signup():
         db.add(user)
         
         if email_enabled:
-            success, err_msg = send_otp_email_sync(email, otp_code)
+            send_otp_email_async(email, otp_code)
+            success = True
+            err_msg = ""
         
         db.commit()
         db.refresh(user)
@@ -78,6 +93,19 @@ def login():
         if not user or not bcrypt.checkpw(password.encode(), user.password_hash.encode()):
             return jsonify({"error": "Invalid email or password"}), 401
             
+        if not user.is_verified:
+            # Send a new OTP and inform them
+            otp_code = f"{random.randint(100000, 999999)}"
+            user.otp_code = otp_code
+            user.otp_expires_at = datetime.utcnow() + timedelta(minutes=10)
+            send_otp_email_sync(email, otp_code) # Send sync for simplicity here
+            db.commit()
+            return jsonify({
+                "error": "Email not verified", 
+                "requires_verification": True, 
+                "email": email
+            }), 403
+
         session["user_id"] = user.id
         session["user_name"] = user.name
         return jsonify({"message": "Login successful", "user": {"id": user.id, "name": user.name, "email": user.email, "xp": user.xp, "streak": user.streak, "level": user.level}}), 200

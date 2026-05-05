@@ -70,6 +70,15 @@
   
   let currentEmail = "";
 
+  // Check for verification redirect
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('verify') === '1' && urlParams.get('email')) {
+    currentEmail = urlParams.get('email');
+    document.getElementById('signup-form').style.display = 'none';
+    document.getElementById('otp-section').style.display = 'block';
+    document.getElementById('otp-email-display').textContent = currentEmail;
+  }
+
   document.getElementById('password').addEventListener('input',function(){
     const v=this.value,len=v.length;
     const fill=document.getElementById('strength-fill'),label=document.getElementById('strength-label');
