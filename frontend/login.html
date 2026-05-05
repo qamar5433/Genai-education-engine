@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Login - GENAI EDUCANTION ENGINE</title>
+<meta name="description" content="Sign in to your GENAI EDUCANTION ENGINE account and continue your learning journey."/>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .auth-bg { position:fixed;inset:0;overflow:hidden;pointer-events:none; }
+  .auth-orb { position:absolute;border-radius:50%;filter:blur(100px); }
+  .auth-orb-1 { width:500px;height:500px;background:rgba(71,70,229,0.12);top:-10%;left:-10%; }
+  .auth-orb-2 { width:400px;height:400px;background:rgba(6,182,212,0.10);bottom:-5%;right:-5%; }
+  .divider-text { display:flex;align-items:center;gap:0.75rem;color:var(--text-muted);font-size:0.8rem; }
+  .divider-text::before,.divider-text::after { content:'';flex:1;height:1px;background:var(--border); }
+  .error-msg { background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius-md);padding:0.75rem 1rem;font-size:0.85rem;color:#dc2626;margin-bottom:1rem;display:none; }
+</style>
+</head>
+<body>
+<div class="auth-bg"><div class="auth-orb auth-orb-1"></div><div class="auth-orb auth-orb-2"></div></div>
+<div class="auth-page">
+  <div class="auth-card fade-in-up">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:2rem">
+      <img src="img/logo.png" alt="Logo" style="width:56px;height:56px;object-fit:contain">
+      <div style="text-align:left">
+        <a href="/" style="text-decoration:none"><span class="text-gradient" style="font-size:1.75rem;font-weight:900">GENAI EDUCANTION ENGINE</span></a>
+        <p style="color:var(--text-muted);font-size:0.875rem;margin-top:0.25rem">Welcome back. Continue your journey.</p>
+      </div>
+    </div>
+    <div class="card" style="padding:2rem;box-shadow:var(--shadow-md)">
+      <div id="error-msg" class="error-msg"></div>
+      <form id="login-form">
+        <div style="margin-bottom:1.25rem">
+          <label class="input-label" for="email">Email Address</label>
+          <input id="email" type="email" class="input-field" placeholder="alex@demo.com" required/>
+        </div>
+        <div style="margin-bottom:1.75rem">
+          <label class="input-label" for="password">Password</label>
+          <input id="password" type="password" class="input-field" placeholder="••••••••" required/>
+        </div>
+        <button id="login-btn" type="submit" class="btn btn-primary btn-full btn-lg">Sign In</button>
+      </form>
+      
+      <div class="divider-text" style="margin:1.5rem 0">or</div>
+      <div style="background:var(--primary-bg);border:1px solid rgba(71,70,229,0.15);border-radius:var(--radius-md);padding:0.9rem 1rem;font-size:0.8rem;color:var(--text-muted);text-align:center">
+        🎯 Demo: <strong style="color:var(--primary)">alex@demo.com</strong> / <strong style="color:var(--primary)">password123</strong>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:1.5rem;font-size:0.875rem;color:var(--text-muted)">
+      Don't have an account? <a href="signup.html" style="color:var(--primary);font-weight:600;text-decoration:none">Sign Up Free</a>
+    </p>
+  </div>
+</div>
+<script src="js/theme.js"></script><script src="js/api.js"></script>
+<script>
+  // Redirect if already logged in
+  Auth.me().then(u => { if(u) window.location.href = '/dashboard.html'; });
+
+  let currentEmail = "";
+
+  document.getElementById('login-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('login-btn');
+    const errEl = document.getElementById('error-msg');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    errEl.style.display = 'none';
+    currentEmail = document.getElementById('email').value.trim();
+    try {
+      await API.post('/api/auth/login', {
+        email: currentEmail,
+        password: document.getElementById('password').value
+      });
+      window.location.href = '/dashboard.html';
+    } catch(err) {
+      if (err.status === 401) {
+        errEl.textContent = 'Invalid email or password.';
+      } else {
+        errEl.textContent = err.message || 'Login failed. Please try again.';
+      }
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Sign In';
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Assessment Center - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  #quiz-list-view,#quiz-play-view,#quiz-result-view{display:none}
+  #quiz-list-view.active,#quiz-play-view.active,#quiz-result-view.active{display:block}
+  .quiz-card{cursor:pointer;transition:all .25s}
+  .quiz-card:hover{transform:translateY(-2px);border-color:rgba(59,130,246,.4)!important}
+  .difficulty-badge{font-size:.65rem;font-weight:700;padding:.2rem .55rem;border-radius:var(--radius-full)}
+  .diff-easy{background:rgba(16,185,129,.15);color:#34d399}
+  .diff-medium{background:rgba(245,158,11,.15);color:#fbbf24}
+  .diff-hard{background:rgba(239,68,68,.15);color:#f87171}
+  .diff-expert{background:rgba(139,92,246,.15);color:#a78bfa}
+  #timer-ring{transition:stroke-dashoffset .5s linear}
+  .result-detail{padding:.75rem 1rem;border-radius:var(--radius-md);margin-bottom:.5rem;border:1px solid}
+  .result-correct{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)}
+  .result-wrong{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25)}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item active" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer"><a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button></div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--on-surface);cursor:pointer" class="material-symbols-outlined">menu</button>
+      <span style="font-weight:700">Assessment Center</span>
+    </div>
+    <span id="user-xp" class="badge badge-blue"></span>
+
+
+  </header>
+
+  <!-- Quiz List -->
+  <div id="quiz-list-view" class="active page-content">
+    <div style="margin-bottom:2rem;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:1rem;">
+      <div>
+        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:.35rem">Smart Assessments</h2>
+        <p class="muted">Challenge yourself with adaptive quizzes tailored to your learning path.</p>
+      </div>
+      <!-- Generate Custom Quiz Box -->
+      <div id="custom-setup" class="card" style="padding:1rem 1.5rem;display:flex;gap:.75rem;align-items:center;background:var(--surface-high);border:1px solid rgba(59,130,246,.3);">
+        <span class="material-symbols-outlined" style="color:var(--primary);font-size:1.5rem">smart_toy</span>
+        <div style="flex:1">
+          <div style="font-size:.75rem;font-weight:700;color:var(--primary);text-transform:uppercase;margin-bottom:.2rem">Generate Custom AI Quiz</div>
+          <div style="display:flex;gap:.5rem">
+            <input type="text" id="custom-quiz-topic" class="input-field" placeholder="Topic (e.g. Thermodynamics)" style="padding:.4rem .8rem;font-size:.85rem;width:200px" onkeydown="if(event.key==='Enter')generateCustomQuiz()">
+            <select id="custom-quiz-diff" class="input-field" style="padding:.4rem;font-size:.85rem;width:90px">
+              <option value="Easy">Easy</option><option value="Medium" selected>Medium</option><option value="Hard">Hard</option>
+            </select>
+            <button id="gen-quiz-btn" onclick="generateCustomQuiz()" class="btn btn-primary" style="padding:.4rem 1rem;font-size:.85rem;gap:.3rem"><span class="material-symbols-outlined" style="font-size:1rem">auto_awesome</span> Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="quiz-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem"></div>
+  </div>
+
+  <!-- Quiz Player -->
+  <div id="quiz-play-view" class="page-content">
+    <div style="max-width:720px;margin:0 auto">
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem">
+        <div>
+          <h2 style="font-size:1.2rem;font-weight:800" id="play-title"></h2>
+          <p class="muted" style="font-size:.8rem" id="play-subtitle"></p>
+        </div>
+        <!-- Timer -->
+        <div style="position:relative;width:60px;height:60px">
+          <svg width="60" height="60" style="transform:rotate(-90deg)">
+            <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/>
+            <circle id="timer-ring" cx="30" cy="30" r="24" fill="none" stroke="#3b82f6" stroke-width="4" stroke-dasharray="150" stroke-dashoffset="0"/>
+          </svg>
+          <span id="timer-display" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:800">—</span>
+        </div>
+      </div>
+      <!-- Progress -->
+      <div style="margin-bottom:1.75rem">
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.4rem"><span class="muted">Question <span id="q-current">1</span> of <span id="q-total">5</span></span><span id="q-fraction" style="font-weight:600"></span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="q-progress-bar" style="width:0%"></div></div>
+      </div>
+      <!-- Question -->
+      <div class="card" style="padding:1.75rem;margin-bottom:1.25rem">
+        <p style="font-size:1.05rem;font-weight:600;line-height:1.6" id="q-text"></p>
+      </div>
+      <!-- Options -->
+      <div id="options-container"></div>
+      <!-- Nav -->
+      <div style="display:flex;justify-content:space-between;margin-top:1.5rem">
+        <button class="btn btn-secondary" id="prev-btn" onclick="changeQ(-1)">← Previous</button>
+        <button class="btn btn-primary" id="next-btn" onclick="changeQ(1)">Next →</button>
+        <button class="btn btn-primary" id="submit-btn" style="display:none" onclick="submitQuiz()">Submit Quiz 🎯</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="quiz-result-view" class="page-content">
+    <div style="max-width:680px;margin:0 auto">
+      <div class="card" style="text-align:center;padding:2.5rem;margin-bottom:1.5rem">
+        <div style="font-size:4rem;margin-bottom:1rem" id="result-emoji">🎉</div>
+        <h2 style="font-size:2rem;font-weight:900;margin-bottom:.5rem" id="result-score-text"></h2>
+        <p class="muted" id="result-sub"></p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin:2rem 0">
+          <div class="card card-elevated stat-card"><div class="stat-value" id="res-correct"></div><div class="stat-label">Correct</div></div>
+          <div class="card card-elevated stat-card"><div class="stat-value" id="res-score"></div><div class="stat-label">Score</div></div>
+          <div class="card card-elevated stat-card"><div class="stat-value" id="res-xp" style="color:#fbbf24"></div><div class="stat-label">XP Earned</div></div>
+        </div>
+        <div style="display:flex;gap:1rem;justify-content:center">
+          <button class="btn btn-secondary" onclick="showList()">← Back to Quizzes</button>
+          <a href="analytics.html" class="btn btn-primary">View Analytics →</a>
+        </div>
+      </div>
+      <h3 style="font-weight:700;margin-bottom:1rem">📝 Question Review</h3>
+      <div id="result-details"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js?v=2"></script><script src="js/features.js"></script>
+<script>
+let quizzes=[], currentQuiz=null, questions=[], currentQ=0, answers={}, timerInterval=null, startTime=0, timeLimit=0;
+
+function diffBadge(d){const map={Easy:'diff-easy',Medium:'diff-medium',Hard:'diff-hard',Expert:'diff-expert'};return`<span class="difficulty-badge ${map[d]||'diff-medium'}">${d}</span>`}
+
+async function init(){
+  await Auth.requireAuth(); populateUserHeader(); initMobileSidebar();
+  try{
+    const d=await API.get('/api/quizzes');
+    quizzes=d.quizzes;
+    const container=document.getElementById('quiz-cards');
+    quizzes.forEach(q=>{
+      container.innerHTML+=`<div class="card quiz-card" onclick="startQuiz(${q.id})" style="border:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem">
+          <div class="badge badge-blue" style="font-size:.7rem">${q.topic||q.course}</div>
+          ${diffBadge(q.difficulty)}
+        </div>
+        <h3 style="font-weight:700;margin-bottom:.4rem">${q.title}</h3>
+        <p class="muted" style="font-size:.85rem;margin-bottom:1.25rem">${q.description}</p>
+        <div style="display:flex;gap:1rem;font-size:.8rem;color:#64748b;margin-bottom:1.25rem">
+          <span>⏱ ${q.time_limit_min} min</span>
+          <span>❓ ${q.question_count} questions</span>
+          <span>🎯 ${q.attempts} attempt${q.attempts!==1?'s':''}</span>
+        </div>
+        ${q.best_score!==null?`<div class="badge badge-green">Best: ${q.best_score}%</div>`:'<div class="badge" style="background:rgba(255,255,255,.05);color:#64748b;border:1px solid rgba(255,255,255,.08)">Not attempted</div>'}
+      </div>`;
+    });
+  }catch(e){showToast('Failed to load quizzes','error');}
+}
+
+async function generateCustomQuiz() {
+  const topic = document.getElementById('custom-quiz-topic').value.trim();
+  const difficulty = document.getElementById('custom-quiz-diff').value;
+  if(!topic) { showToast('Please enter a topic', 'error'); return; }
+  
+  const btn = document.getElementById('gen-quiz-btn');
+  const setup = document.getElementById('custom-setup');
+  btn.disabled = true;
+  btn.innerHTML = 'Generating...';
+  
+  const oldConsole = document.getElementById('gen-console');
+  if(oldConsole) oldConsole.remove();
+
+  const consoleDiv = document.createElement('div');
+  consoleDiv.id = 'gen-console';
+  consoleDiv.style.cssText = 'background:#0f172a;color:#38bdf8;padding:1.5rem;border-radius:var(--radius-lg);font-family:monospace;font-size:.85rem;border:1px solid #1e293b;box-shadow:var(--shadow-xl);min-height:150px;max-height:300px;overflow-y:auto';
+  consoleDiv.innerHTML = `<div style="color:#94a3b8;margin-bottom:.75rem"># AI GENERATION CONSOLE v1.0</div><div id="console-tokens" style="white-space:pre-wrap"></div>`;
+  setup.appendChild(consoleDiv);
+  
+  const tokensEl = document.getElementById('console-tokens');
+  let generatedText = '';
+  
+  try {
+    const res = await fetch('/api/quiz/generate_stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({topic, difficulty, count: 5})
+    });
+    
+    await Streaming.consume(res, {
+      onToken: (token) => {
+        generatedText += token;
+        tokensEl.textContent += token;
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      },
+      onDone: async () => {
+        try {
+          const quizData = Streaming.parseJSON(generatedText);
+          const saveRes = await API.post('/api/quiz/save_generated', {topic, difficulty, quiz: quizData});
+          
+          if(saveRes.success && saveRes.quiz_id) {
+            showToast('Quiz generated successfully!', 'success');
+            startQuiz(saveRes.quiz_id);
+            document.getElementById('custom-quiz-topic').value = '';
+          } else {
+            throw new Error(saveRes.error || 'Failed to save');
+          }
+        } catch(e) {
+          showToast('Failed to parse/save: ' + e.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">auto_awesome</span> Create';
+          consoleDiv.remove();
+        }
+      },
+      onError: (err) => {
+        showToast('Generation error: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">auto_awesome</span> Create';
+        consoleDiv.remove();
+      }
+    });
+  } catch(e) {
+    showToast('Failed to generate quiz: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">auto_awesome</span> Create';
+    const consoleEl = document.getElementById('gen-console');
+    if(consoleEl) consoleEl.remove();
+    // refresh list quietly in background
+    API.get('/api/quizzes').then(d=>{ quizzes=d.quizzes; document.getElementById('quiz-cards').innerHTML='';
+      quizzes.forEach(q=>{
+        document.getElementById('quiz-cards').innerHTML+=`<div class="card quiz-card" onclick="startQuiz(${q.id})" style="border:1px solid rgba(255,255,255,.08)">
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem">
+            <div class="badge badge-blue" style="font-size:.7rem">${q.topic||q.course}</div>
+            ${diffBadge(q.difficulty)}
+          </div>
+          <h3 style="font-weight:700;margin-bottom:.4rem">${q.title}</h3>
+          <p class="muted" style="font-size:.85rem;margin-bottom:1.25rem">${q.description}</p>
+          <div style="display:flex;gap:1rem;font-size:.8rem;color:#64748b;margin-bottom:1.25rem">
+            <span>⏱ ${q.time_limit_min} min</span>
+            <span>❓ ${q.question_count} questions</span>
+            <span>🎯 ${q.attempts} attempt${q.attempts!==1?'s':''}</span>
+          </div>
+          ${q.best_score!==null?`<div class="badge badge-green">Best: ${q.best_score}%</div>`:'<div class="badge" style="background:rgba(255,255,255,.05);color:#64748b;border:1px solid rgba(255,255,255,.08)">Not attempted</div>'}
+        </div>`;
+      });
+    });
+  }
+}
+
+async function startQuiz(id){
+  try{
+    const d=await API.get(`/api/quizzes/${id}`);
+    currentQuiz=d; questions=d.questions; answers={}; currentQ=0; startTime=Date.now(); timeLimit=d.time_limit_min*60;
+    document.getElementById('play-title').textContent=d.title;
+    document.getElementById('play-subtitle').textContent=d.course+' · '+questions.length+' questions · '+d.time_limit_min+' min';
+    document.getElementById('q-total').textContent=questions.length;
+    showView('play'); renderQuestion(); startTimer();
+  }catch(e){showToast('Failed to load quiz','error');}
+}
+
+function renderQuestion(){
+  const q=questions[currentQ];
+  document.getElementById('q-current').textContent=currentQ+1;
+  document.getElementById('q-fraction').textContent=`${currentQ+1}/${questions.length}`;
+  document.getElementById('q-progress-bar').style.width=((currentQ+1)/questions.length*100)+'%';
+  document.getElementById('q-text').textContent=q.text;
+  const opts=document.getElementById('options-container'); opts.innerHTML='';
+  ['a','b','c','d'].forEach(letter=>{
+    const text=q['option_'+letter]; if(!text)return;
+    const div=document.createElement('div');
+    div.className='quiz-option'+(answers[q.id]===letter?' selected':'');
+    div.innerHTML=`<div class="option-letter">${letter.toUpperCase()}</div><span style="font-size:.9rem">${text}</span>`;
+    div.onclick=()=>{answers[q.id]=letter;renderQuestion();};
+    opts.appendChild(div);
+  });
+  document.getElementById('prev-btn').style.display=currentQ>0?'':'none';
+  const isLast=currentQ===questions.length-1;
+  document.getElementById('next-btn').style.display=isLast?'none':'';
+  document.getElementById('submit-btn').style.display=isLast?'':'none';
+}
+
+function changeQ(dir){currentQ=Math.max(0,Math.min(questions.length-1,currentQ+dir));renderQuestion();}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  let remaining=timeLimit;
+  const ring=document.getElementById('timer-ring');
+  const circ=150;
+  const tick=()=>{
+    remaining--;
+    document.getElementById('timer-display').textContent=Math.floor(remaining/60)+':'+(remaining%60).toString().padStart(2,'0');
+    ring.style.strokeDashoffset=circ*(1-remaining/timeLimit);
+    ring.style.stroke=remaining<60?'#ef4444':remaining<timeLimit*0.3?'#f59e0b':'#3b82f6';
+    if(remaining<=0){clearInterval(timerInterval);submitQuiz();}
+  };
+  tick(); timerInterval=setInterval(tick,1000);
+}
+
+async function submitQuiz(){
+  clearInterval(timerInterval);
+  const timeTaken=Math.floor((Date.now()-startTime)/1000);
+  try{
+    // Grab XP before submission to detect level-up
+    const me=await Auth.me().catch(()=>null);
+    const oldXp = me ? (me.xp || 0) : null;
+    const r=await API.post('/api/quiz/submit',{quiz_id:currentQuiz.id,answers,time_taken_sec:timeTaken});
+    showResults(r, oldXp);
+  }catch(e){showToast('Submission failed','error');}
+}
+
+function showResults(r, oldXp=null){
+  showView('result');
+  const pct=r.score;
+  document.getElementById('result-emoji').textContent=pct>=90?'🏆':pct>=70?'🎉':pct>=50?'💪':'📚';
+  document.getElementById('result-score-text').textContent=pct+'% Score';
+  document.getElementById('result-sub').textContent=pct>=90?'Outstanding! You\'ve mastered this topic!':pct>=70?'Great job! Keep pushing for mastery.':pct>=50?'Good effort! Review the explanations below.':'Keep studying — every attempt makes you stronger!';
+  document.getElementById('res-correct').textContent=r.correct+'/'+r.total;
+  document.getElementById('res-score').textContent=pct+'%';
+  document.getElementById('res-xp').textContent='+'+r.xp_earned+' XP';
+  // Fire XP gain animation + check level-up
+  if (r.xp_earned > 0) {
+    setTimeout(() => XP.gain(r.xp_earned, pct>=90?'Perfect score bonus!':'Quiz complete!', oldXp), 600);
+  }
+  const det=document.getElementById('result-details');det.innerHTML='';
+  r.details.forEach((d,i)=>{
+    det.innerHTML+=`<div class="result-detail ${d.is_correct?'result-correct':'result-wrong'}">
+      <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.4rem">
+        <span style="font-size:1rem">${d.is_correct?'✅':'❌'}</span>
+        <span style="font-weight:600;font-size:.875rem">Q${i+1}: ${d.text}</span>
+      </div>
+      ${!d.is_correct?`<p style="font-size:.8rem;color:#94a3b8;margin-bottom:.25rem">Your answer: <strong style="color:#f87171">${d.selected.toUpperCase()}</strong> · Correct: <strong style="color:#34d399">${d.correct.toUpperCase()}</strong></p>`:''}
+      <p style="font-size:.8rem;color:#64748b;font-style:italic">💡 ${d.explanation}</p>
+    </div>`;
+  });
+}
+
+
+function showView(v){['list','play','result'].forEach(n=>document.getElementById('quiz-'+n+'-view').classList.toggle('active',n===v));}
+function showList(){showView('list');clearInterval(timerInterval);}
+init();
+</script>
+</body>
+</html>

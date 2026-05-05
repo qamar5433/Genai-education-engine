@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AI Tutor - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .chat-layout{display:flex;height:calc(100vh - 60px)}
+  .chat-sidebar{width:240px;border-right:1px solid rgba(255,255,255,.07);padding:1.25rem;flex-shrink:0;overflow-y:auto}
+  .chat-main{flex:1;display:flex;flex-direction:column}
+  .chat-header{padding:1rem 1.5rem;border-bottom:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:1rem}
+  .chat-messages{flex:1;overflow-y:auto;padding:1.5rem;display:flex;flex-direction:column;gap:1rem}
+  .chat-input-area{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:.75rem;align-items:flex-end}
+  .chat-textarea{flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:.75rem 1rem;color:var(--on-surface);font-family:inherit;font-size:.9rem;resize:none;outline:none;max-height:120px;transition:border-color .2s}
+  .chat-textarea:focus{border-color:#3b82f6}
+  .send-btn{width:2.75rem;height:2.75rem;border-radius:50%;background:var(--primary-container);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s,filter .15s}
+  .send-btn:hover{filter:brightness(1.2);transform:scale(1.05)}
+  .typing-indicator{display:none;align-self:flex-start}
+  .typing-indicator.show{display:flex;align-items:center;gap:.35rem;padding:.75rem 1rem;background:var(--surface-high);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-lg);border-bottom-left-radius:4px}
+  .typing-dot{width:6px;height:6px;border-radius:50%;background:#64748b;animation:bounce .6s infinite alternate}
+  .typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{to{transform:translateY(-6px);background:#60a5fa}}
+  .suggestion-chip{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius-full);padding:.3rem .8rem;font-size:.8rem;color:#93c5fd;cursor:pointer;transition:background .2s;white-space:nowrap}
+  .suggestion-chip:hover{background:rgba(59,130,246,.2)}
+  .tutor-avatar{width:2.25rem;height:2.25rem;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item active" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer"><a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button></div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--on-surface);cursor:pointer" class="material-symbols-outlined">menu</button>
+      <span style="font-weight:700">AI Tutor</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem"><span style="width:8px;height:8px;border-radius:50%;background:#4fdbc8;animation:pulse-glow 2s infinite"></span><span style="font-size:.8rem;color:#4fdbc8;font-weight:600">Online</span></div>
+
+
+  </header>
+
+  <div class="chat-layout">
+    <!-- Suggestions sidebar -->
+    <div class="chat-sidebar">
+      <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:.75rem">Quick Topics</p>
+      <div style="display:flex;flex-direction:column;gap:.5rem" id="suggestion-list">
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Quantum mechanics</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Calculus derivatives</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Machine learning</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Python pandas</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Organic chemistry</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">How do I study better?</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Explain uncertainty principle</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">What is overfitting?</div>
+      </div>
+      <hr class="divider"/>
+      <p style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#475569;margin-bottom:.75rem">Tips</p>
+      <div style="font-size:.78rem;color:#475569;line-height:1.6">
+        <p>💡 Ask about specific concepts from your courses</p>
+        <p style="margin-top:.5rem">🎯 Request worked examples for better understanding</p>
+        <p style="margin-top:.5rem">📚 Ask me to quiz you on any topic</p>
+      </div>
+    </div>
+
+    <!-- Chat area -->
+    <div class="chat-main">
+      <div class="chat-header">
+        <div class="tutor-avatar"><span class="material-symbols-outlined" style="color:#fff;font-size:1.1rem">smart_toy</span></div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem">GENAI EDUCANTION ENGINE Tutor</div>
+          <div style="font-size:.75rem;color:#4fdbc8">Always available · GPT-4 powered</div>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <!-- Messages injected here -->
+        <div class="typing-indicator" id="typing">
+          <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        </div>
+      </div>
+
+      <!-- Suggestion row -->
+      <div style="padding:.5rem 1.5rem;display:flex;gap:.5rem;overflow-x:auto;border-top:1px solid rgba(255,255,255,.05)">
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Explain this concept</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Give me an example</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Quiz me on this</div>
+        <div class="suggestion-chip" onclick="sendSuggestion(this)">Simplify for me</div>
+      </div>
+
+      <div class="chat-input-area">
+        <textarea id="chat-input" class="chat-textarea" placeholder="Ask me anything about your studies..." rows="1"></textarea>
+        <button class="send-btn" onclick="sendMessage()">
+          <span class="material-symbols-outlined" style="color:#fff;font-size:1.1rem">send</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js?v=2"></script><script src="js/features.js"></script>
+<script>
+let sessionId=null;
+
+function appendMessage(role,content){
+  const typing=document.getElementById('typing');
+  const msgs=document.getElementById('chat-messages');
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:flex;gap:.75rem;align-items:flex-start'+(role==='user'?';flex-direction:row-reverse':'');
+  const avatar=document.createElement('div');
+  if(role==='ai'){
+    avatar.className='tutor-avatar';avatar.style.marginTop='4px';
+    avatar.innerHTML='<span class="material-symbols-outlined" style="color:#fff;font-size:1rem">smart_toy</span>';
+  } else {
+    avatar.style.cssText='width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;margin-top:4px';
+    avatar.textContent='U';
+  }
+  const bubble=document.createElement('div');
+  bubble.className='chat-bubble '+role;bubble.textContent=content;
+  wrap.appendChild(avatar);wrap.appendChild(bubble);
+  msgs.insertBefore(wrap,typing);
+  msgs.scrollTop=msgs.scrollHeight;
+  return bubble;
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('chat-input');
+  const msg=inp.value.trim(); if(!msg||!sessionId) return;
+  inp.value=''; inp.style.height='auto';
+  appendMessage('user',msg);
+  
+  const typing=document.getElementById('typing');
+  typing.classList.add('show');
+  const msgs = document.getElementById('chat-messages');
+  msgs.scrollTop=msgs.scrollHeight;
+  
+  try{
+    const res = await fetch('/api/tutor/chat_stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({session_id: sessionId, message: msg})
+    });
+    
+    typing.classList.remove('show');
+    const bubble = appendMessage('ai', '');
+    
+    await Streaming.consume(res, {
+      onToken: (token) => {
+        bubble.textContent += token;
+        msgs.scrollTop = msgs.scrollHeight;
+      },
+      onError: (err) => {
+        bubble.textContent += '\n\n⚠ ' + (err.message || 'Sorry, I encountered an error responding.');
+        console.error("Streaming error:", err);
+      }
+    });
+    
+  }catch(e){
+    typing.classList.remove('show');
+    appendMessage('ai','Sorry, I had trouble connecting. Please try again.');
+  }
+}
+
+function sendSuggestion(el){
+  document.getElementById('chat-input').value=el.textContent;
+  sendMessage();
+}
+
+async function init(){
+  await Auth.requireAuth(); populateUserHeader(); initMobileSidebar();
+  try{
+    const r=await API.post('/api/tutor/session',{});
+    sessionId=r.session_id;
+    const h=await API.get('/api/tutor/history/'+sessionId);
+    h.messages.forEach(m=>appendMessage(m.role,m.content));
+  }catch(e){showToast('Could not start session','error');}
+}
+
+// Auto-resize textarea
+document.getElementById('chat-input')?.addEventListener('input',function(){
+  this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px';
+});
+document.getElementById('chat-input')?.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
+});
+init();
+</script>
+</body>
+</html>

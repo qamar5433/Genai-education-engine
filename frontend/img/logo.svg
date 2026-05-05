@@ -1,0 +1,21 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Graduate Cap -->
+  <path d="M20 35 L50 20 L80 35 L50 50 Z" fill="#1e293b" />
+  <path d="M80 35 L80 45" stroke="#1e293b" stroke-width="2" />
+  <circle cx="80" cy="47" r="2" fill="#1e293b" />
+  
+  <!-- Stylized G -->
+  <path d="M50 40 
+           A 25 25 0 1 1 50 90 
+           A 25 25 0 0 1 30 85" 
+        fill="none" stroke="#3b82f6" stroke-width="8" stroke-linecap="round" />
+  <path d="M50 65 L75 65 L75 75" fill="none" stroke="#3b82f6" stroke-width="8" stroke-linecap="round" />
+  
+  <!-- Tech lines -->
+  <circle cx="20" cy="55" r="2" fill="#3b82f6" />
+  <path d="M20 55 L35 55" stroke="#3b82f6" stroke-width="2" />
+  <circle cx="15" cy="65" r="2" fill="#3b82f6" />
+  <path d="M15 65 L30 65" stroke="#3b82f6" stroke-width="2" />
+  <circle cx="20" cy="75" r="2" fill="#3b82f6" />
+  <path d="M20 75 L35 75" stroke="#3b82f6" stroke-width="2" />
+</svg>

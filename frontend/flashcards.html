@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Flashcards - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .flashcard-scene{perspective:1000px;width:100%;max-width:640px;margin:0 auto;height:340px;cursor:pointer}
+  .flashcard-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+  .flashcard-inner.flipped{transform:rotateY(180deg)}
+  .flashcard-face{position:absolute;inset:0;border-radius:var(--radius-xl);padding:2.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:var(--shadow-lg)}
+  .card-front{background:var(--surface);border:1.5px solid var(--border)}
+  .card-back{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;transform:rotateY(180deg)}
+  .card-back .category-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff}
+  .rating-btn{display:flex;align-items:center;gap:.4rem;padding:.6rem 1.25rem;border-radius:var(--radius-md);font-size:.85rem;font-weight:600;cursor:pointer;border:1.5px solid;transition:all .2s}
+  .rating-know{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.3);color:#16a34a}
+  .rating-know:hover{background:rgba(34,197,94,.15);border-color:var(--accent)}
+  .rating-learning{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:#d97706}
+  .rating-learning:hover{background:rgba(245,158,11,.15)}
+  .progress-dots{display:flex;gap:.4rem;flex-wrap:wrap;justify-content:center}
+  .dot{width:.5rem;height:.5rem;border-radius:50%;background:var(--border);transition:background .3s}
+  .dot.seen{background:var(--primary-light)}
+  .dot.know{background:var(--accent)}
+  .dot.learning{background:var(--warning)}
+  .keyboard-hint{font-size:.72rem;color:var(--text-light);display:flex;gap:1rem;justify-content:center}
+  .kbd{background:var(--surface-high);border:1px solid var(--border);border-radius:.3rem;padding:.1rem .4rem;font-family:monospace;font-size:.7rem}
+  .topic-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item active" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:2rem;height:2rem;border-radius:var(--radius-md);background:linear-gradient(135deg,#8B5CF6,#06B6D4);display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-outlined" style="color:#fff;font-size:1rem">style</span>
+        </div>
+        <span style="font-size:.95rem;font-weight:800;color:var(--text)">Flashcards</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span id="fc-progress-badge" class="badge badge-green" style="display:none"></span>
+
+
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Setup panel -->
+    <div id="setup-panel">
+      <div style="text-align:center;margin-bottom:2rem">
+        <h1 class="page-heading">🃏 Flashcard Study Mode</h1>
+        <p class="page-subheading">AI-generated cards with spaced repetition — master any topic</p>
+      </div>
+
+      <div class="card" style="max-width:560px;margin:0 auto">
+        <label class="input-label">Enter a Topic</label>
+        <div style="display:flex;gap:.75rem;margin-bottom:1.25rem">
+          <input id="fc-topic" type="text" class="input-field" placeholder="e.g. Machine Learning, Photosynthesis…" onkeydown="if(event.key==='Enter')startFlashcards()"/>
+          <button onclick="startFlashcards()" class="btn btn-primary" style="white-space:nowrap;gap:.4rem">
+            <span class="material-symbols-outlined" style="font-size:1rem">play_circle</span>Start
+          </button>
+        </div>
+        <div style="margin-bottom:1rem">
+          <label class="input-label">Number of Cards</label>
+          <div style="display:flex;gap:.5rem">
+            <button class="cge-tab active" onclick="setCount(this,5)">5</button>
+            <button class="cge-tab" onclick="setCount(this,10)">10</button>
+            <button class="cge-tab" onclick="setCount(this,15)">15</button>
+            <button class="cge-tab" onclick="setCount(this,20)">20</button>
+          </div>
+          <style>.cge-tab{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:var(--radius-md);font-size:.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all .2s}.cge-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}</style>
+        </div>
+        <div class="topic-chips">
+          <span style="font-size:.72rem;color:var(--text-light);font-weight:600;align-self:center">Try:</span>
+        </div>
+        <div id="fc-chips" style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem"></div>
+      </div>
+    </div>
+
+    <!-- Study panel (hidden) -->
+    <div id="study-panel" style="display:none">
+      <!-- Header bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem">
+        <div>
+          <span id="fc-topic-label" class="badge badge-blue" style="font-size:.8rem;margin-bottom:.4rem"></span>
+          <div style="font-size:.85rem;color:var(--text-muted)">Card <strong id="fc-current">1</strong> of <strong id="fc-total">10</strong></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <span style="font-size:.8rem;color:var(--accent);font-weight:700">✓ <span id="know-count">0</span> Know</span>
+          <span style="font-size:.8rem;color:var(--warning);font-weight:700">⟳ <span id="learning-count">0</span> Learning</span>
+          <button onclick="resetSession()" class="btn btn-ghost" style="padding:.4rem .85rem;font-size:.78rem;gap:.3rem">
+            <span class="material-symbols-outlined" style="font-size:.9rem">refresh</span>Restart
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress dots -->
+      <div class="progress-dots" id="progress-dots" style="margin-bottom:1.5rem"></div>
+
+      <!-- Flashcard -->
+      <div class="flashcard-scene" onclick="flipCard()" id="flashcard-scene">
+        <div class="flashcard-inner" id="flashcard-inner">
+          <div class="flashcard-face card-front">
+            <span class="badge" id="fc-category" style="margin-bottom:1rem;font-size:.7rem"></span>
+            <p id="fc-question" style="font-size:1.05rem;font-weight:700;color:var(--text);line-height:1.6;max-width:480px"></p>
+            <div style="position:absolute;bottom:1.25rem;display:flex;align-items:center;gap:.4rem;color:var(--text-light);font-size:.78rem">
+              <span class="material-symbols-outlined" style="font-size:.9rem">touch_app</span>Tap to reveal answer
+            </div>
+            <span id="fc-difficulty" class="badge" style="position:absolute;top:1.25rem;right:1.25rem;font-size:.65rem"></span>
+          </div>
+          <div class="flashcard-face card-back">
+            <span class="material-symbols-outlined" style="font-size:1.5rem;margin-bottom:.75rem;opacity:.8">lightbulb</span>
+            <p id="fc-answer" style="font-size:.95rem;line-height:1.7;max-width:500px"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons (show after flip) -->
+      <div id="rating-btns" style="display:none;justify-content:center;gap:1rem;margin-top:1.5rem;flex-wrap:wrap">
+        <button class="rating-btn rating-know" onclick="rateCard('know')">
+          <span class="material-symbols-outlined" style="font-size:1rem">check_circle</span>Got it!
+        </button>
+        <button class="rating-btn rating-learning" onclick="rateCard('learning')">
+          <span class="material-symbols-outlined" style="font-size:1rem">replay</span>Still learning
+        </button>
+      </div>
+
+      <!-- Keyboard hints -->
+      <div class="keyboard-hint" style="margin-top:1rem">
+        <span><kbd class="kbd">Space</kbd> flip</span>
+        <span><kbd class="kbd">→</kbd> next</span>
+        <span><kbd class="kbd">←</kbd> prev</span>
+        <span><kbd class="kbd">K</kbd> know it</span>
+        <span><kbd class="kbd">L</kbd> still learning</span>
+      </div>
+
+      <!-- Completion card (hidden) -->
+      <div id="completion-card" style="display:none;text-align:center;padding:3rem 1rem">
+        <div style="font-size:3rem;margin-bottom:1rem">🎉</div>
+        <h2 style="font-weight:900;color:var(--text);margin-bottom:.5rem">Session Complete!</h2>
+        <p style="color:var(--text-muted);margin-bottom:1.5rem">You've reviewed all cards in this deck.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;margin-bottom:2rem">
+          <div class="card" style="padding:1rem 1.5rem;text-align:center;background:var(--accent-bg)">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--accent)" id="final-know">0</div>
+            <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700">Know It</div>
+          </div>
+          <div class="card" style="padding:1rem 1.5rem;text-align:center;background:rgba(245,158,11,.08)">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--warning)" id="final-learning">0</div>
+            <div style="font-size:.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700">Review Again</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+          <button onclick="reviewLearning()" class="btn btn-primary" id="review-btn">Review "Still Learning" cards</button>
+          <button onclick="resetSession()" class="btn btn-ghost">New Session</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js"></script><script src="js/features.js"></script><script src="js/streaming.js?v=2"></script>
+<script>
+const TOPICS = ['Machine Learning','Quantum Mechanics','Photosynthesis','Newton\'s Laws','World War II','Calculus','DNA & Genetics','Climate Change','Python Programming','Blockchain'];
+let cards = [], currentIdx = 0, ratings = {}, cardCount = 10, isFlipped = false;
+
+(async () => {
+  const user = await Auth.requireAuth(); if(!user) return;
+  document.getElementById('user-avatar').textContent = user.name[0];
+  initMobileSidebar(); populateUserHeader();
+
+  // Build chips
+  const wrap = document.getElementById('fc-chips');
+  TOPICS.forEach(t => {
+    const b = document.createElement('button');
+    b.className = 'chip badge-blue'; b.textContent = t;
+    b.style.cssText = 'cursor:pointer;font-size:.72rem';
+    b.onclick = () => { document.getElementById('fc-topic').value = t; startFlashcards(); };
+    wrap.appendChild(b);
+  });
+})();
+
+function setCount(el, n) {
+  document.querySelectorAll('.cge-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); cardCount = n;
+}
+
+async function startFlashcards() {
+  const topic = document.getElementById('fc-topic').value.trim();
+  if (!topic) { showToast('Please enter a topic','⚠'); return; }
+  
+  const btn = document.querySelector('#setup-panel .btn-primary');
+  const setup = document.getElementById('setup-panel');
+  
+  btn.disabled = true; btn.textContent = 'Generating…';
+  
+  // Clean up any old console
+  const oldConsole = document.getElementById('gen-console');
+  if(oldConsole) oldConsole.remove();
+
+  // Inject console
+  const consoleDiv = document.createElement('div');
+  consoleDiv.id = 'gen-console';
+  consoleDiv.style.cssText = 'margin-top:2rem;background:#0f172a;color:#38bdf8;padding:1.5rem;border-radius:var(--radius-lg);font-family:monospace;font-size:.85rem;border:1px solid #1e293b;box-shadow:var(--shadow-xl);min-height:150px;max-height:300px;overflow-y:auto';
+  consoleDiv.innerHTML = `
+    <div style="color:#94a3b8;margin-bottom:.75rem"># FLASHCARD GEN TERMINAL v1.0</div>
+    <div id="console-tokens" style="white-space:pre-wrap"></div>
+  `;
+  setup.appendChild(consoleDiv);
+  
+  const tokensEl = document.getElementById('console-tokens');
+  let fullText = '';
+  
+  try {
+    const res = await fetch('/api/flashcards/generate_stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ topic, count: cardCount })
+    });
+    
+    await Streaming.consume(res, {
+      onToken: (token) => {
+        fullText += token;
+        tokensEl.textContent += token;
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+      },
+      onDone: () => {
+        try {
+          let parsed = Streaming.parseJSON(fullText);
+          cards = Array.isArray(parsed) ? parsed : (parsed.flashcards || []);
+          
+          if(cards.length === 0) throw new Error("No cards generated");
+          
+          currentIdx = 0; ratings = {};
+          document.getElementById('fc-topic-label').textContent = '🃏 ' + topic;
+          document.getElementById('fc-total').textContent = cards.length;
+          buildDots();
+          
+          document.getElementById('setup-panel').style.display = 'none';
+          document.getElementById('study-panel').style.display = 'block';
+          document.getElementById('completion-card').style.display = 'none';
+          document.getElementById('flashcard-scene').style.display = 'block';
+          document.getElementById('rating-btns').style.display = 'none';
+          showCard(0);
+          
+        } catch(e) {
+          console.error("Parse Error:", e);
+          showToast('Could not parse generated cards','error');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">play_circle</span>Start';
+          consoleDiv.remove();
+        }
+      },
+      onError: (err) => {
+        showToast('Generation error: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">play_circle</span>Start';
+        consoleDiv.remove();
+      }
+    });
+    
+  } catch(e) {
+    showToast('Connection error', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">play_circle</span>Start';
+  }
+}
+
+function buildDots() {
+  const wrap = document.getElementById('progress-dots');
+  wrap.innerHTML = '';
+  cards.forEach((_, i) => {
+    const d = document.createElement('div'); d.className = 'dot'; d.id = 'dot-' + i;
+    wrap.appendChild(d);
+  });
+}
+
+function showCard(idx) {
+  if (idx >= cards.length) { showCompletion(); return; }
+  const card = cards[idx];
+  isFlipped = false;
+  document.getElementById('flashcard-inner').classList.remove('flipped');
+  document.getElementById('rating-btns').style.display = 'none';
+  document.getElementById('fc-question').textContent = card.question;
+  document.getElementById('fc-answer').textContent   = card.answer;
+  document.getElementById('fc-current').textContent  = idx + 1;
+  document.getElementById('fc-category').textContent = card.category;
+  document.getElementById('fc-category').className   = 'badge badge-blue';
+
+
+  const diffEl = document.getElementById('fc-difficulty');
+  diffEl.textContent = card.difficulty;
+  diffEl.className   = 'badge ' + (card.difficulty === 'Easy' ? 'badge-green' : card.difficulty === 'Medium' ? 'badge-orange' : 'badge-red');
+
+  const dot = document.getElementById('dot-' + idx);
+  if (dot) dot.classList.add('seen');
+  updateCounts();
+}
+
+function flipCard() {
+  if (currentIdx >= cards.length) return;
+  isFlipped = !isFlipped;
+  document.getElementById('flashcard-inner').classList.toggle('flipped', isFlipped);
+  if (isFlipped) document.getElementById('rating-btns').style.display = 'flex';
+}
+
+function rateCard(rating) {
+  ratings[currentIdx] = rating;
+  const dot = document.getElementById('dot-' + currentIdx);
+  if (dot) { dot.classList.remove('seen'); dot.classList.add(rating === 'know' ? 'know' : 'learning'); }
+  updateCounts();
+  currentIdx++;
+  if (currentIdx < cards.length) showCard(currentIdx);
+  else showCompletion();
+}
+
+function updateCounts() {
+  const vals = Object.values(ratings);
+  document.getElementById('know-count').textContent     = vals.filter(v => v === 'know').length;
+  document.getElementById('learning-count').textContent = vals.filter(v => v === 'learning').length;
+  const badge = document.getElementById('fc-progress-badge');
+  badge.style.display = 'inline-flex';
+  badge.textContent = Math.round((Object.keys(ratings).length / cards.length) * 100) + '% done';
+}
+
+function showCompletion() {
+  const knowCount = Object.values(ratings).filter(v => v === 'know').length;
+  const learnCount = Object.values(ratings).filter(v => v === 'learning').length;
+  document.getElementById('flashcard-scene').style.display = 'none';
+  document.getElementById('rating-btns').style.display     = 'none';
+  document.getElementById('completion-card').style.display = 'block';
+  document.getElementById('final-know').textContent        = knowCount;
+  document.getElementById('final-learning').textContent    = learnCount;
+  const reviewBtn = document.getElementById('review-btn');
+  reviewBtn.style.display = learnCount > 0 ? 'inline-flex' : 'none';
+}
+
+function reviewLearning() {
+  const learningIdxs = Object.entries(ratings).filter(([,v]) => v === 'learning').map(([k]) => parseInt(k));
+  cards = learningIdxs.map(i => cards[i]);
+  currentIdx = 0; ratings = {};
+  buildDots();
+  document.getElementById('flashcard-scene').style.display = 'block';
+  document.getElementById('completion-card').style.display = 'none';
+  showCard(0);
+}
+
+function resetSession() {
+  cards = []; currentIdx = 0; ratings = {};
+  document.getElementById('setup-panel').style.display = 'block';
+  document.getElementById('study-panel').style.display = 'none';
+  document.getElementById('fc-progress-badge').style.display = 'none';
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (document.getElementById('study-panel').style.display === 'none') return;
+  if (e.key === ' ')   { e.preventDefault(); flipCard(); }
+  if (e.key === 'ArrowRight') rateCard('know');
+  if (e.key === 'ArrowLeft')  rateCard('learning');
+  if (e.key.toLowerCase() === 'k') rateCard('know');
+  if (e.key.toLowerCase() === 'l') rateCard('learning');
+});
+</script>
+</body>
+</html>

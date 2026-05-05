@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Learning Path - GENAI EDUCANTION AI</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <style>
+    .path-node {
+      display: flex;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+      position: relative
+    }
+
+    .path-node::before {
+      content: '';
+      position: absolute;
+      left: 1.25rem;
+      top: 3.5rem;
+      bottom: -1.5rem;
+      width: 2px;
+      background: rgba(255, 255, 255, .07);
+      z-index: 0
+    }
+
+    .path-node:last-child::before {
+      display: none
+    }
+
+    .node-icon {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 1;
+      border: 2px solid
+    }
+
+    .node-done {
+      background: rgba(16, 185, 129, .2);
+      border-color: #10b981;
+      color: #34d399
+    }
+
+    .node-active {
+      background: rgba(59, 130, 246, .2);
+      border-color: #3b82f6;
+      color: #60a5fa;
+      animation: pulse-glow 2s infinite
+    }
+
+    .node-locked {
+      background: rgba(255, 255, 255, .04);
+      border-color: rgba(255, 255, 255, .1);
+      color: #475569
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem
+    }
+    
+    /* Quiz Overlay Styles */
+    .quiz-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px);
+      z-index: 10000; display: none; align-items: center; justify-content: center; padding: 2rem;
+    }
+    .quiz-overlay.active { display: flex; }
+    .quiz-modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl);
+      width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative; padding: 2rem;
+    }
+    .quiz-option {
+      display: flex; align-items: center; gap: 1rem; padding: 1rem;
+      background: var(--surface-low); border: 1px solid var(--border); border-radius: var(--radius-md);
+      cursor: pointer; transition: all 0.2s; margin-bottom: 0.75rem;
+    }
+    .quiz-option:hover { background: var(--surface-high); border-color: var(--primary); }
+    .quiz-option.selected { background: rgba(71,70,229,0.15); border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary); }
+    .option-letter {
+      width: 2rem; height: 2rem; border-radius: 50%; background: var(--surface-high);
+      display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem;
+    }
+    #quiz-list-view, #quiz-play-view, #quiz-result-view, #quiz-notes-view { display: none; position: relative; }
+    #quiz-list-view.active, #quiz-play-view.active, #quiz-result-view.active, #quiz-notes-view.active { display: block; }
+  </style>
+</head>
+
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="img/logo.png" alt="Logo">
+      <div class="brand-text">
+        <h1>GENAI EDUCANTION ENGINE</h1>
+        <p>AI-Powered Mastery</p>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+      <a class="nav-item active" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning
+        Path</a>
+      <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content
+        Hub</a>
+      <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+      <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+      <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+      <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+      <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content
+      <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+        Gen</a>
+      <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study
+        Planner</a>
+      <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+      <a class="nav-item" href="achievements.html"><span
+          class="material-symbols-outlined">military_tech</span>Achievements</a>
+      <a class="nav-item" href="leaderboard.html"><span
+          class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+    </nav>
+    <div class="sidebar-footer"><a class="nav-item" href="profile.html"><span
+          class="material-symbols-outlined">person</span>Profile</a>
+      <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span
+          class="material-symbols-outlined">logout</span>Sign Out</button>
+    </div>
+  </aside>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:1rem">
+        <button id="menu-btn" style="background:none;border:none;color:var(--on-surface);cursor:pointer"
+          class="material-symbols-outlined">menu</button>
+        <span style="font-weight:700">Learning Path</span>
+      </div>
+      <span id="user-xp" class="badge badge-blue"></span>
+
+
+    </header>
+
+    <div class="page-content">
+      <div
+        style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem">
+        <div>
+          <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:.35rem">Your Learning Path</h2>
+          <p class="muted">AI-curated roadmap adapting to your knowledge gaps in real time.</p>
+        </div>
+        <span class="badge badge-purple" style="font-size:.75rem">✦ Updated based on your last quiz</span>
+      </div>
+
+      <!-- Enrolled Courses -->
+      <h3 style="font-weight:700;margin-bottom:1.25rem">📚 Enrolled Courses</h3>
+      <div class="course-grid" id="enrolled-grid"></div>
+
+      <!-- Path Timeline -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem">
+        <div>
+          <h3 style="font-weight:700;margin-bottom:1.25rem">🗺 Your Progress Map</h3>
+          <div id="path-timeline"></div>
+        </div>
+        <div>
+          <h3 style="font-weight:700;margin-bottom:1.25rem">🌐 Explore More Courses</h3>
+          <div id="available-grid" style="display:flex;flex-direction:column;gap:.75rem"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz Overlay Modal -->
+  <div id="quiz-overlay" class="quiz-overlay">
+    <div class="quiz-modal">
+      <button onclick="closeQuiz()" style="position:absolute; top:1.5rem; right:1.5rem; background:none; border:none; color:var(--text-muted); cursor:pointer" class="material-symbols-outlined">close</button>
+      
+      <!-- List View -->
+      <div id="quiz-list-view">
+        <h2 id="modal-course-title" style="font-weight:800; margin-bottom:0.5rem">Course Quizzes</h2>
+        <p class="muted" style="margin-bottom:2rem">Select a quiz to start testing your knowledge.</p>
+        <div id="modal-quiz-list" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem"></div>
+      </div>
+
+      <!-- Play View -->
+      <div id="quiz-play-view">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
+          <div>
+            <h3 id="play-title" style="font-weight:800; font-size:1.25rem"></h3>
+            <p id="play-progress-text" class="muted" style="font-size:0.8rem"></p>
+          </div>
+          <div id="quiz-timer" style="font-weight:800; font-size:1.25rem; color:var(--primary)">00:00</div>
+        </div>
+        <div class="progress-bar-bg" style="margin-bottom:2rem"><div id="play-progress-bar" class="progress-bar-fill" style="width:0%"></div></div>
+        <div class="card" style="padding:2rem; margin-bottom:1.5rem"><p id="q-text" style="font-size:1.1rem; font-weight:600; line-height:1.6"></p></div>
+        <div id="options-container"></div>
+        <div style="display:flex; justify-content:space-between; margin-top:2rem">
+          <button class="btn btn-secondary" id="prev-btn" onclick="changeQ(-1)">Previous</button>
+          <button class="btn btn-primary" id="next-btn" onclick="changeQ(1)">Next</button>
+          <button class="btn btn-primary" id="submit-btn" style="display:none" onclick="submitQuiz()">Submit Quiz</button>
+        </div>
+      </div>
+
+      <!-- Result View -->
+      <div id="quiz-result-view" style="text-align:center">
+        <div style="font-size:4rem; margin-bottom:1rem" id="res-emoji">🎉</div>
+        <h2 id="res-score-text" style="font-size:2rem; font-weight:900; margin-bottom:0.5rem"></h2>
+        <p id="res-sub" class="muted" style="margin-bottom:2rem"></p>
+        <div style="display:flex; gap:1rem; justify-content:center; margin-bottom:2rem">
+          <div class="card" style="padding:1rem 1.5rem"><div id="res-correct" style="font-size:1.5rem; font-weight:800"></div><div class="muted" style="font-size:0.7rem">Correct</div></div>
+          <div class="card" style="padding:1rem 1.5rem"><div id="res-xp" style="font-size:1.5rem; font-weight:800; color:#fbbf24"></div><div class="muted" style="font-size:0.7rem">XP Gained</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="closeQuiz()">Back to Learning Path</button>
+      </div>
+      <!-- Notes View -->
+      <div id="quiz-notes-view">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem">
+          <div>
+            <h2 id="notes-title" style="font-weight:800; margin-bottom:0.25rem">Course Notes</h2>
+            <p id="notes-subtitle" class="muted" style="font-size:0.8rem">Curated study material for this module</p>
+          </div>
+          <div style="display:flex; gap:0.5rem">
+             <button onclick="showView('list')" class="btn btn-secondary" style="padding:.4rem .75rem; font-size:.75rem">Quizzes</button>
+             <button id="notes-dl-btn" class="btn btn-ghost" style="padding:.4rem .75rem" title="Save as Text"><span class="material-symbols-outlined" style="font-size:1.2rem">download</span></button>
+          </div>
+        </div>
+        <div id="notes-content" class="card" style="padding:1.75rem; max-height:60vh; overflow-y:auto; line-height:1.7; background:var(--surface-low); border:1px solid var(--border); border-radius:var(--radius-lg); font-size:0.95rem; white-space:pre-wrap"></div>
+        <div style="margin-top:1.5rem; display:flex; justify-content:space-between; align-items:center">
+          <p class="muted" style="font-size:0.75rem">💡 Pro Tip: Read thoroughly before taking the quiz to boost your score!</p>
+          <button class="btn btn-primary" onclick="showView('list')">Go to Quizzes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/features.js"></script>
+  <script>
+    let allData = null;
+    let selectedCourseId = null;
+
+    async function init() {
+      await Auth.requireAuth(); populateUserHeader(); initMobileSidebar();
+      try {
+        const d = await API.get('/api/courses/enrolled');
+        allData = d;
+        
+        // Auto-select first course if none selected
+        if (!selectedCourseId && d.enrolled.length > 0) {
+          selectedCourseId = d.enrolled[0].id;
+        }
+
+        renderUI();
+      } catch (e) { showToast('Failed to load courses', 'error'); console.error(e); }
+    }
+
+    function renderUI() {
+        const d = allData;
+        if(!d) return;
+
+        // Enrolled
+        const grid = document.getElementById('enrolled-grid');
+        grid.innerHTML = '';
+        if (!d.enrolled.length) { grid.innerHTML = '<p class="muted">No courses enrolled yet. Explore below!</p>'; }
+        d.enrolled.forEach(c => {
+          const col = courseColor(c.color);
+          const isSelected = c.id === selectedCourseId;
+          grid.innerHTML += `<div class="card ${isSelected ? 'active-course-card' : ''}" 
+               style="border:1px solid ${isSelected ? col.text : col.border+'20'}; cursor:pointer; transition:all 0.2s"
+               onclick="selectCourse(${c.id})">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+          <div style="width:2.75rem;height:2.75rem;border-radius:.75rem;background:${col.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0"><span class="material-symbols-outlined" style="color:${col.text}">${c.icon}</span></div>
+          <div><div style="font-weight:700">${c.title}</div><div style="font-size:.75rem;color:#64748b">${c.topic}</div></div>
+        </div>
+        <p style="font-size:.85rem;color:#64748b;margin-bottom:1.25rem;line-height:1.5; height:3rem; overflow:hidden">${c.description}</p>
+        <div style="margin-bottom:1.25rem">
+          <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:.4rem"><span class="muted">Progress</span><span style="font-weight:700;color:${col.text}">${c.progress_pct}%</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${c.progress_pct}%;background:linear-gradient(90deg,${col.text},${col.text}88)"></div></div>
+          <div style="font-size:.75rem;color:#475569;margin-top:.35rem">${c.completed_units}/${c.total_units} units · Study Notes available</div>
+        </div>
+        <a href="javascript:void(0)" onclick="event.stopPropagation(); openNotes(${c.id})" class="btn btn-primary" style="width:100%;justify-content:center">Read Notes →</a>
+      </div>`;
+        });
+
+        // Path timeline (specific to selected course)
+        const timeline = document.getElementById('path-timeline');
+        timeline.innerHTML = '';
+        
+        const sel = d.enrolled.find(c => c.id === selectedCourseId);
+        if (sel) {
+          const col = courseColor(sel.color);
+          const steps = [
+            { label: `Orientation: ${sel.title}`, status: 'done', icon: 'info' },
+            { label: `Module 1: Foundations`, status: sel.completed_units >= 1 ? 'done' : 'active', icon: 'menu_book' },
+            { label: `Advanced Topics`, status: sel.completed_units >= 5 ? 'done' : sel.progress_pct >= 50 ? 'active' : 'locked', icon: 'psychology' },
+            { label: `Final Certification`, status: sel.progress_pct >= 100 ? 'done' : sel.progress_pct >= 80 ? 'active' : 'locked', icon: 'verified' },
+          ];
+          
+          steps.forEach(s => {
+            const cls = s.status === 'done' ? 'node-done' : s.status === 'active' ? 'node-active' : 'node-locked';
+            timeline.innerHTML += `<div class="path-node">
+              <div class="node-icon ${cls}" style="${s.status==='active'?'border-color:'+col.text+';color:'+col.text:''}"><span class="material-symbols-outlined" style="font-size:1rem">${s.icon}</span></div>
+              <div class="card" style="flex:1;padding:.75rem 1rem"><p style="font-size:.875rem;font-weight:500">${s.label}</p><span class="badge ${s.status === 'done' ? 'badge-green' : s.status === 'active' ? 'badge-blue' : ''}  " style="margin-top:.35rem;font-size:.65rem">${s.status === 'done' ? 'Completed' : s.status === 'active' ? 'Up Next' : 'Locked'}</span></div>
+            </div>`;
+          });
+        } else {
+           timeline.innerHTML = '<p class="muted">Select a course to view its path.</p>';
+        }
+
+        // Available
+        const avail = document.getElementById('available-grid');
+        avail.innerHTML = '';
+        d.available.forEach(c => {
+          const col = courseColor(c.color);
+          avail.innerHTML += `<div class="card" style="display:flex;align-items:center;gap:.9rem;padding:1rem">
+        <div style="width:2.5rem;height:2.5rem;border-radius:.75rem;background:${col.bg};display:flex;align-items:center;justify-content:center;flex-shrink:0"><span class="material-symbols-outlined" style="color:${col.text};font-size:1rem">${c.icon}</span></div>
+        <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:.875rem;margin-bottom:.15rem">${c.title}</div><div style="font-size:.75rem;color:#475569">${c.topic} · ${c.total_units} units</div></div>
+        <button class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.75rem;flex-shrink:0" onclick="event.stopPropagation(); enrollCourse(${c.id}, this)">Enroll</button>
+      </div>`;
+        });
+        if (!d.available.length) avail.innerHTML = '<p class="muted" style="font-size:.875rem">You\'re enrolled in all available courses!</p>';
+    }
+
+    function selectCourse(id) {
+      selectedCourseId = id;
+      renderUI();
+    }
+
+    async function enrollCourse(id, btn) {
+      if(btn) { btn.disabled = true; btn.textContent = 'Enrolling...'; }
+      try {
+        const res = await API.post(`/api/courses/${id}/enroll`);
+        showToast(res.message, 'success');
+        selectedCourseId = id; // Auto-select the newly enrolled course
+        await init(); 
+      } catch (e) {
+        showToast(e.message || 'Enrollment failed', 'error');
+        if(btn) { btn.disabled = false; btn.textContent = 'Enroll'; }
+      }
+    }
+
+    async function enrollCourse(id, btn) {
+      if(btn) { btn.disabled = true; btn.textContent = 'Enrolling...'; }
+      try {
+        const res = await API.post(`/api/courses/${id}/enroll`);
+        showToast(res.message, 'success');
+        selectedCourseId = id; // Auto-select the newly enrolled course
+        await init(); 
+      } catch (e) {
+        showToast(e.message || 'Enrollment failed', 'error');
+        if(btn) { btn.disabled = false; btn.textContent = 'Enroll'; }
+      }
+    }
+
+    // --- Quiz Integration ---
+    let quizState = { active: false, quizzes: [], current: null, questions: [], index: 0, answers: {}, startTime: 0, timer: null };
+
+    async function openQuizSelector(courseId) {
+      const course = allData.enrolled.find(c => c.id === courseId);
+      if(!course) return;
+      document.getElementById('modal-course-title').textContent = course.title + ' Quizzes';
+      document.getElementById('quiz-overlay').classList.add('active');
+      showView('list');
+      
+      const list = document.getElementById('modal-quiz-list');
+      list.innerHTML = '<p class="muted">Loading quizzes...</p>';
+      
+      try {
+        const d = await API.get('/api/quizzes');
+        // Filter quizzes by course_id now that we have it, or by topic/title as fallback
+        const courseQuizzes = d.quizzes.filter(q => q.course_id === courseId || q.topic === course.topic || q.course === course.title);
+        
+        list.innerHTML = '';
+        
+        // --- ADDED: Generate Fresh AI Quiz Option ---
+        list.innerHTML += `<div class="card" style="padding:1.25rem; cursor:pointer; background:var(--primary-bg); border:1.5px dashed var(--primary); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:0.5rem" onclick="generateCourseQuiz(${courseId}, '${course.topic}')">
+            <span class="material-symbols-outlined" style="color:var(--primary); font-size:1.5rem">auto_awesome</span>
+            <div style="font-weight:800; color:var(--primary)">✨ Generate Fresh AI Quiz</div>
+            <div style="font-size:0.7rem; color:var(--primary); opacity:0.8">Get a unique set of questions every time</div>
+          </div>`;
+        
+        if(!courseQuizzes.length && !list.innerHTML) {
+          list.innerHTML = '<p class="muted">No quizzes available for this course yet.</p>';
+        }
+        courseQuizzes.forEach(q => {
+          list.innerHTML += `<div class="card" style="padding:1rem; cursor:pointer" onclick="startQuiz(${q.id})">
+            <div style="font-weight:700; margin-bottom:0.25rem">${q.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted)">${q.question_count} Questions · ${q.difficulty}</div>
+          </div>`;
+        });
+      } catch(e) { list.innerHTML = '<p class="error">Failed to load quizzes.</p>'; }
+    }
+
+    async function generateCourseQuiz(courseId, topic) {
+      const list = document.getElementById('modal-quiz-list');
+      const originalHTML = list.innerHTML;
+      list.innerHTML = `<div style="grid-column: 1 / -1; text-align:center; padding:2rem">
+          <div class="spinner" style="margin:0 auto 1rem"></div>
+          <p style="font-weight:700">Generating fresh questions...</p>
+          <p class="muted" style="font-size:0.8rem">Our AI is curating a unique quiz for you</p>
+        </div>`;
+      
+      try {
+        const res = await API.post('/api/quiz/generate', {
+          topic: topic,
+          difficulty: 'Medium',
+          count: 5,
+          course_id: courseId
+        });
+        if(res.quiz_id) {
+          await startQuiz(res.quiz_id);
+        } else {
+          throw new Error('Failed to generate quiz');
+        }
+      } catch(e) {
+        showToast('Generation failed', 'error');
+        list.innerHTML = originalHTML;
+      }
+    }
+
+    async function startQuiz(id) {
+      try {
+        const q = await API.get(`/api/quizzes/${id}`);
+        quizState = { active: true, quizzes: [], current: q, questions: q.questions, index: 0, answers: {}, startTime: Date.now(), timer: null };
+        document.getElementById('play-title').textContent = q.title;
+        showView('play');
+        renderQuestion();
+        startTimer(q.time_limit_min * 60);
+      } catch(e) { showToast('Failed to start quiz', 'error'); }
+    }
+
+    function renderQuestion() {
+      const q = quizState.questions[quizState.index];
+      document.getElementById('play-progress-text').textContent = `Question ${quizState.index + 1} of ${quizState.questions.length}`;
+      document.getElementById('play-progress-bar').style.width = ((quizState.index + 1) / quizState.questions.length * 100) + '%';
+      document.getElementById('q-text').textContent = q.text;
+      
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+      ['a','b','c','d'].forEach(l => {
+        const optText = q['option_' + l];
+        if(!optText) return;
+        const div = document.createElement('div');
+        div.className = 'quiz-option' + (quizState.answers[q.id] === l ? ' selected' : '');
+        div.innerHTML = `<div class="option-letter">${l.toUpperCase()}</div><span>${optText}</span>`;
+        div.onclick = () => { quizState.answers[q.id] = l; renderQuestion(); };
+        container.appendChild(div);
+      });
+      
+      document.getElementById('prev-btn').style.display = quizState.index > 0 ? '' : 'none';
+      const isLast = quizState.index === quizState.questions.length - 1;
+      document.getElementById('next-btn').style.display = isLast ? 'none' : '';
+      document.getElementById('submit-btn').style.display = isLast ? '' : 'none';
+    }
+
+    function changeQ(dir) {
+      quizState.index = Math.max(0, Math.min(quizState.questions.length - 1, quizState.index + dir));
+      renderQuestion();
+    }
+
+    function startTimer(seconds) {
+      clearInterval(quizState.timer);
+      let rem = seconds;
+      const update = () => {
+        const m = Math.floor(rem/60), s = rem%60;
+        document.getElementById('quiz-timer').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+        if(rem <= 0) { clearInterval(quizState.timer); submitQuiz(); }
+        rem--;
+      };
+      update();
+      quizState.timer = setInterval(update, 1000);
+    }
+
+    async function submitQuiz() {
+      clearInterval(quizState.timer);
+      const time = Math.floor((Date.now() - quizState.startTime)/1000);
+      try {
+        const me = await Auth.me().catch(()=>null);
+        const oldXp = me ? (me.xp || 0) : null;
+        const res = await API.post('/api/quiz/submit', { quiz_id: quizState.current.id, answers: quizState.answers, time_taken_sec: time });
+        
+        showView('result');
+        document.getElementById('res-emoji').textContent = res.score >= 80 ? '🏆' : res.score >= 50 ? '🎉' : '📚';
+        document.getElementById('res-score-text').textContent = res.score + '% Score';
+        document.getElementById('res-sub').textContent = res.score >= 80 ? 'Incredible! You have mastered this.' : 'Good effort! Keep practicing to improve.';
+        document.getElementById('res-correct').textContent = `${res.correct}/${res.total}`;
+        document.getElementById('res-xp').textContent = `+${res.xp_earned}`;
+        
+        if(res.xp_earned > 0) XP.gain(res.xp_earned, 'Quiz complete!', oldXp);
+        init(); // Refresh dashboard data in background
+      } catch(e) { showToast('Failed to submit quiz', 'error'); }
+    }
+
+    function closeQuiz() {
+      document.getElementById('quiz-overlay').classList.remove('active');
+      clearInterval(quizState.timer);
+    }
+
+    async function openNotes(courseId) {
+      const course = allData.enrolled.find(c => c.id === courseId);
+      if(!course) return;
+      document.getElementById('notes-title').textContent = course.title + ' Notes';
+      document.getElementById('quiz-overlay').classList.add('active');
+      showView('notes');
+      
+      const content = document.getElementById('notes-content');
+      content.innerHTML = '<div style="text-align:center; padding:2rem"><div class="spinner" style="margin:0 auto 1rem"></div><p>Preparing your study notes...</p></div>';
+      
+      try {
+        const res = await API.post('/api/content/generate', {
+          topic: course.topic,
+          type: 'notes'
+        });
+        content.textContent = res.content;
+        document.getElementById('notes-dl-btn').onclick = () => {
+          const blob = new Blob([res.content], {type: 'text/plain'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `${course.title}_Notes.txt`; a.click();
+          URL.revokeObjectURL(url);
+        };
+      } catch(e) { content.innerHTML = '<p class="error">Failed to load notes.</p>'; }
+    }
+
+    function showView(v) {
+      ['list','play','result','notes'].forEach(n => {
+        const el = document.getElementById('quiz-'+n+'-view');
+        if(el) el.classList.toggle('active', n === v);
+      });
+    }
+
+    init();
+  </script>
+</body>
+
+</html>

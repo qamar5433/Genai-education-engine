@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>My Library - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .lib-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.25rem}
+  .lib-card{position:relative;cursor:pointer;transition:all .2s}
+  .lib-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+  .type-icon{width:2.5rem;height:2.5rem;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .lib-preview{font-size:.78rem;color:var(--text-muted);line-height:1.6;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;margin:.75rem 0}
+  .delete-btn{position:absolute;top:.75rem;right:.75rem;width:1.75rem;height:1.75rem;border-radius:50%;background:var(--surface-low);border:1px solid var(--border);cursor:pointer;display:none;align-items:center;justify-content:center;color:var(--error);transition:all .2s}
+  .lib-card:hover .delete-btn{display:flex}
+  .delete-btn:hover{background:rgba(239,68,68,.08);border-color:var(--error)}
+  .filter-tab{padding:.4rem 1rem;border-radius:var(--radius-full);font-size:.78rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all .2s}
+  .filter-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg)}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:1rem}
+  .view-modal{background:var(--surface);border-radius:var(--radius-xl);padding:2rem;max-width:700px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+  .output-box{background:var(--surface-low);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.5rem;font-size:.875rem;line-height:1.9;white-space:pre-wrap;color:var(--text);max-height:55vh;overflow-y:auto}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item active" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:2rem;height:2rem;border-radius:var(--radius-md);background:linear-gradient(135deg,#F59E0B,#EF4444);display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-outlined" style="color:#fff;font-size:1rem">local_library</span>
+        </div>
+        <span style="font-size:.95rem;font-weight:800;color:var(--text)">My Library</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span id="lib-count-badge" class="badge badge-blue" style="display:none"></span>
+
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <!-- Hero -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.75rem">
+      <div>
+        <h1 class="page-heading">📚 My Library</h1>
+        <p class="page-subheading">All your saved notes, summaries, examples & case studies</p>
+      </div>
+      <a href="content-gen.html" class="btn btn-primary" style="gap:.4rem">
+        <span class="material-symbols-outlined" style="font-size:1rem">add</span>Generate & Save
+      </a>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem">
+      <button class="filter-tab active" onclick="filterBy(this,'all')">All</button>
+      <button class="filter-tab" onclick="filterBy(this,'notes')">📝 Notes</button>
+      <button class="filter-tab" onclick="filterBy(this,'summary')">⚡ Summaries</button>
+      <button class="filter-tab" onclick="filterBy(this,'examples')">💡 Examples</button>
+      <button class="filter-tab" onclick="filterBy(this,'case_study')">📊 Case Studies</button>
+    </div>
+
+    <!-- Search -->
+    <div style="position:relative;max-width:420px;margin-bottom:1.5rem">
+      <span class="material-symbols-outlined" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--text-light);font-size:1.1rem;pointer-events:none">search</span>
+      <input id="search-input" type="text" class="input-field" placeholder="Search saved content…" style="padding-left:2.5rem" oninput="renderItems()"/>
+    </div>
+
+    <!-- Grid -->
+    <div class="lib-grid" id="lib-grid"></div>
+
+    <!-- Empty state -->
+    <div id="lib-empty" style="display:none;text-align:center;padding:4rem 2rem">
+      <div style="width:5rem;height:5rem;border-radius:50%;background:var(--surface-low);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem">
+        <span class="material-symbols-outlined" style="font-size:2.5rem;color:var(--text-light)">local_library</span>
+      </div>
+      <h3 style="font-weight:800;color:var(--text);margin-bottom:.5rem" id="empty-msg">Your library is empty</h3>
+      <p style="font-size:.875rem;color:var(--text-muted);margin-bottom:1.5rem">Generate content and click "Save to Library" to build your personal study collection.</p>
+      <a href="content-gen.html" class="btn btn-primary">Start Generating</a>
+    </div>
+  </div>
+</div>
+
+<!-- View Modal -->
+<div id="view-modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="view-modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem">
+      <div style="display:flex;align-items:center;gap:.75rem">
+        <div id="modal-icon-wrap" class="type-icon"></div>
+        <div>
+          <h2 id="modal-title" style="font-size:1rem;font-weight:800;color:var(--text)"></h2>
+          <p id="modal-meta" style="font-size:.72rem;color:var(--text-muted)"></p>
+        </div>
+      </div>
+      <div style="display:flex;gap:.5rem">
+        <button id="modal-copy-btn" class="btn btn-secondary" style="padding:.4rem .85rem;font-size:.78rem;gap:.3rem" onclick="copyModal()">
+          <span class="material-symbols-outlined" style="font-size:.9rem">content_copy</span>Copy
+        </button>
+        <button id="modal-dl-btn" class="btn btn-secondary" style="padding:.4rem .85rem;font-size:.78rem;gap:.3rem" onclick="downloadModal()">
+          <span class="material-symbols-outlined" style="font-size:.9rem">download</span>Save .txt
+        </button>
+        <button onclick="closeModal()" class="btn btn-ghost" style="padding:.4rem .75rem">✕</button>
+      </div>
+    </div>
+    <div class="output-box" id="modal-content"></div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/api.js"></script><script src="js/features.js"></script>
+<script>
+const TYPE_META = {
+  notes:      { label:'Notes',      icon:'description', color:'#4746E5', badge:'badge-blue' },
+  summary:    { label:'Summary',    icon:'summarize',   color:'#06B6D4', badge:'badge-cyan' },
+  examples:   { label:'Examples',   icon:'lightbulb',   color:'#22C55E', badge:'badge-green' },
+  case_study: { label:'Case Study', icon:'cases',       color:'#F59E0B', badge:'badge-orange' },
+};
+
+let allItems = [], currentFilter = 'all', activeModal = null;
+
+(async () => {
+  const user = await Auth.requireAuth(); if(!user) return;
+  document.getElementById('user-avatar').textContent = user.name[0];
+  initMobileSidebar(); populateUserHeader();
+  await loadLibrary();
+})();
+
+async function loadLibrary() {
+  try {
+    const data = await API.get('/api/library');
+    allItems = data;
+    renderItems();
+    const badge = document.getElementById('lib-count-badge');
+    if (allItems.length > 0) { badge.style.display='inline-flex'; badge.textContent = allItems.length + ' saved'; }
+  } catch(e) { console.error(e); }
+}
+
+function filterBy(el, type) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = type;
+  renderItems();
+}
+
+function renderItems() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const filtered = allItems.filter(i => {
+    const matchFilter = currentFilter === 'all' || i.content_type === currentFilter;
+    const matchSearch = !q || i.title.toLowerCase().includes(q) || i.content.toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+
+  const grid = document.getElementById('lib-grid');
+  const empty = document.getElementById('lib-empty');
+  grid.innerHTML = '';
+
+  if (!filtered.length) {
+    empty.style.display = 'block';
+    document.getElementById('empty-msg').textContent = q || currentFilter !== 'all' ? 'No matching items found' : 'Your library is empty';
+    return;
+  }
+  empty.style.display = 'none';
+
+  filtered.forEach(item => {
+    const meta = TYPE_META[item.content_type] || TYPE_META.notes;
+    const card = document.createElement('div');
+    card.className = 'card lib-card';
+    card.innerHTML = `
+      <button class="delete-btn" onclick="deleteItem(event,${item.id})" title="Delete">
+        <span class="material-symbols-outlined" style="font-size:.9rem">delete</span>
+      </button>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem">
+        <div class="type-icon" style="background:${meta.color}1a">
+          <span class="material-symbols-outlined" style="color:${meta.color};font-size:1.25rem">${meta.icon}</span>
+        </div>
+        <div style="flex:1;overflow:hidden">
+          <div style="font-size:.875rem;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.title}</div>
+          <div style="font-size:.65rem;color:var(--text-light)">${meta.label} · ${item.word_count} words · ${item.created_at}</div>
+        </div>
+      </div>
+      <p class="lib-preview">${item.content}</p>
+      <div style="display:flex;gap:.5rem;margin-top:.5rem">
+        <span class="badge ${meta.badge}" style="font-size:.65rem">${meta.label}</span>
+        <span class="badge badge-blue" style="font-size:.65rem">${item.word_count} words</span>
+      </div>`;
+    card.onclick = e => { if(!e.target.closest('.delete-btn')) openModal(item); };
+    grid.appendChild(card);
+  });
+}
+
+function openModal(item) {
+  activeModal = item;
+  const meta = TYPE_META[item.content_type] || TYPE_META.notes;
+  document.getElementById('modal-icon-wrap').innerHTML = `<span class="material-symbols-outlined" style="color:${meta.color};font-size:1.25rem">${meta.icon}</span>`;
+  document.getElementById('modal-icon-wrap').style.background = meta.color + '1a';
+  document.getElementById('modal-title').textContent = item.title;
+  document.getElementById('modal-meta').textContent  = `${meta.label} · ${item.word_count} words · Saved ${item.created_at}`;
+  document.getElementById('modal-content').textContent = item.content;
+  document.getElementById('view-modal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('view-modal').style.display='none'; activeModal=null; }
+
+function copyModal() {
+  if(!activeModal) return;
+  navigator.clipboard.writeText(activeModal.content).then(()=>showToast('Copied ✓','✅'));
+}
+function downloadModal() {
+  if(!activeModal) return;
+  const meta = TYPE_META[activeModal.content_type] || TYPE_META.notes;
+  const blob = new Blob([activeModal.content],{type:'text/plain'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download=`${meta.label}_${activeModal.title.replace(/\s+/g,'_')}.txt`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function deleteItem(e, id) {
+  e.stopPropagation();
+  if(!confirm('Delete this saved item?')) return;
+  try {
+    await API.delete(`/api/library/${id}`);
+    allItems = allItems.filter(i => i.id !== id);
+    renderItems();
+    const badge = document.getElementById('lib-count-badge');
+    if(allItems.length > 0) badge.textContent = allItems.length + ' saved';
+    else badge.style.display='none';
+    showToast('Deleted','🗑');
+  } catch(e) { alert('Delete failed'); }
+}
+
+function showToast(msg,icon='✅'){
+  let t=document.querySelector('.toast');if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t);}
+  t.innerHTML=`<span style="font-size:1.1rem">${icon}</span><span style="font-size:.875rem;font-weight:500">${msg}</span>`;
+  t.classList.add('show');clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>

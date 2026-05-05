@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Study Planner - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem}
+  .day-col{display:flex;flex-direction:column;gap:.4rem}
+  .day-header{text-align:center;font-size:.7rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;padding:.4rem;border-radius:var(--radius-sm);background:var(--surface-low)}
+  .day-header.today{background:var(--primary-bg);color:var(--primary)}
+  .time-slot{padding:.55rem .6rem;border-radius:var(--radius-md);font-size:.72rem;cursor:pointer;border:1.5px dashed var(--border);color:var(--text-light);transition:all .2s;min-height:2.5rem;display:flex;align-items:center;justify-content:center;text-align:center;position:relative}
+  .time-slot:hover{border-style:solid;border-color:var(--primary);background:var(--primary-bg);color:var(--primary)}
+  .time-slot.booked{border-style:solid;border-color:var(--primary);background:var(--primary-bg);color:var(--primary);font-weight:600}
+  .time-slot.booked.done{border-color:var(--accent);background:var(--accent-bg);color:#16a34a}
+  .goal-ring{position:relative;width:120px;height:120px;flex-shrink:0}
+  .goal-ring svg{transform:rotate(-90deg)}
+  .goal-ring circle{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+  .ring-bg{stroke:var(--surface-high)}
+  .ring-fill{stroke:url(#ringGrad);stroke-dasharray:314;stroke-dashoffset:314}
+  .ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center}
+  @media(max-width:768px){.week-grid{grid-template-columns:repeat(3,1fr)}.stats-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item active" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:2rem;height:2rem;border-radius:var(--radius-md);background:linear-gradient(135deg,#22C55E,#06B6D4);display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-outlined" style="color:#fff;font-size:1rem">calendar_month</span>
+        </div>
+        <span style="font-size:.95rem;font-weight:800;color:var(--text)">Study Planner</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+
+
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Stats -->
+    <div class="stats-row" style="margin-bottom:1.5rem">
+      <div class="card" style="text-align:center">
+        <div style="font-size:1.5rem;font-weight:900;color:var(--primary)" id="stat-planned">0</div>
+        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Sessions Planned</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:1.5rem;font-weight:900;color:var(--accent)" id="stat-done">0</div>
+        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Completed</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-size:1.5rem;font-weight:900;color:var(--secondary)" id="stat-hours">0h</div>
+        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Planned Hours</div>
+      </div>
+      <div class="card" style="display:flex;align-items:center;justify-content:center;gap:1rem">
+        <div class="goal-ring" id="goal-ring-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <defs><linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4746E5"/><stop offset="100%" stop-color="#06B6D4"/></linearGradient></defs>
+            <circle class="ring-bg" cx="60" cy="60" r="50"/>
+            <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="50"/>
+          </svg>
+          <div class="ring-text">
+            <div style="font-size:1.2rem;font-weight:900;color:var(--primary)" id="ring-pct">0%</div>
+            <div style="font-size:.55rem;color:var(--text-muted);font-weight:700">WEEKLY GOAL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Week header -->
+    <div class="card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:.75rem">
+        <div>
+          <h2 style="font-size:1rem;font-weight:800;color:var(--text)" id="week-label">This Week</h2>
+          <p style="font-size:.78rem;color:var(--text-muted)">Click any slot to schedule a study session</p>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button onclick="prevWeek()" class="btn btn-secondary" style="padding:.4rem .75rem"><span class="material-symbols-outlined">chevron_left</span></button>
+          <button onclick="goToday()" class="btn btn-ghost" style="padding:.4rem .85rem;font-size:.8rem">Today</button>
+          <button onclick="nextWeek()" class="btn btn-secondary" style="padding:.4rem .75rem"><span class="material-symbols-outlined">chevron_right</span></button>
+        </div>
+      </div>
+      <div class="week-grid" id="week-grid"></div>
+    </div>
+
+    <!-- Daily goal setting -->
+    <div class="card">
+      <h3 class="section-title">⚙️ Daily Study Goal</h3>
+      <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+        <div style="flex:1">
+          <label class="input-label">Target minutes per day</label>
+          <input id="goal-input" type="range" min="15" max="240" step="15" value="60" style="width:100%;accent-color:var(--primary)" oninput="updateGoalLabel(this.value)"/>
+          <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--text-muted)"><span>15 min</span><span id="goal-label" style="color:var(--primary);font-weight:700">60 min</span><span>4 hrs</span></div>
+        </div>
+        <button onclick="saveGoal()" class="btn btn-primary" style="gap:.4rem;white-space:nowrap">
+          <span class="material-symbols-outlined" style="font-size:1rem">save</span>Save Goal
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Session Modal -->
+<div id="modal" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="card" style="width:360px;animation:fadeInUp .3s ease">
+    <h3 id="modal-title" style="font-weight:800;color:var(--text);margin-bottom:1rem">📅 Schedule Session</h3>
+    <p id="modal-slot" style="font-size:.85rem;color:var(--text-muted);margin-bottom:1.25rem"></p>
+    <div style="margin-bottom:1rem">
+      <label class="input-label">Subject / Topic</label>
+      <input id="modal-topic" type="text" class="input-field" placeholder="e.g. Calculus Ch.3, Machine Learning"/>
+    </div>
+    <div style="margin-bottom:1.25rem">
+      <label class="input-label">Duration</label>
+      <select id="modal-duration" class="input-field">
+        <option>30 min</option><option selected>60 min</option><option>90 min</option><option>2 hrs</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+      <button id="modal-save-btn" onclick="saveSession()" class="btn btn-primary" style="flex:1">Save</button>
+      <button id="modal-complete-btn" onclick="toggleCompleteSession()" class="btn" style="flex:1;background:var(--surface-high);color:var(--text);display:none;border:1px solid var(--border)">Complete</button>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <button id="modal-delete-btn" onclick="deleteSession()" class="btn" style="flex:1;background:rgba(239, 68, 68, 0.1);color:#ef4444;display:none;border:none">Delete</button>
+      <button onclick="closeModal()" class="btn btn-ghost" style="flex:1">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/api.js"></script><script src="js/features.js"></script>
+<script>
+const TIMES  = ['8am','9am','10am','11am','12pm','2pm','3pm','4pm','6pm','7pm','8pm'];
+const DAYS   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let weekOffset = 0, sessions = JSON.parse(localStorage.getItem('qg_planner') || '{}');
+let modalKey = null;
+
+(async () => {
+  const user = await Auth.requireAuth(); if(!user) return;
+  document.getElementById('user-avatar').textContent = user.name[0];
+  initMobileSidebar(); populateUserHeader();
+  const savedGoal = localStorage.getItem('qg_goal_min') || 60;
+  document.getElementById('goal-input').value = savedGoal;
+  updateGoalLabel(savedGoal);
+  renderWeek(); updateStats();
+})();
+
+function getWeekDates(offset) {
+  const now = new Date();
+  const day = now.getDay();
+  const dates = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(now.getDate() - day + i + offset * 7);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function renderWeek() {
+  const dates = getWeekDates(weekOffset);
+  const today = new Date().toDateString();
+  const grid  = document.getElementById('week-grid');
+  grid.innerHTML = '';
+  const label = document.getElementById('week-label');
+  label.textContent = weekOffset === 0 ? 'This Week' : weekOffset === 1 ? 'Next Week' : weekOffset === -1 ? 'Last Week' : `Week of ${dates[0].toLocaleDateString('en',{month:'short',day:'numeric'})}`;
+
+  dates.forEach((date, di) => {
+    const col = document.createElement('div'); col.className = 'day-col';
+    const hdr = document.createElement('div');
+    hdr.className = 'day-header' + (date.toDateString() === today ? ' today' : '');
+    hdr.innerHTML = `<div>${DAYS[di]}</div><div style="font-size:.85rem;font-weight:900">${date.getDate()}</div>`;
+    col.appendChild(hdr);
+
+    TIMES.forEach(t => {
+      const key = date.toDateString() + '_' + t;
+      const slot = document.createElement('div');
+      const sess = sessions[key];
+      slot.className = 'time-slot' + (sess ? ' booked' + (sess.done ? ' done' : '') : '');
+      slot.textContent = sess ? (sess.done ? '✓ ' : '') + sess.topic : t;
+      slot.title = sess ? `${sess.topic} · ${sess.duration}${sess.done?' (done)':''}` : 'Click to schedule';
+      if (sess && !sess.done) {
+        slot.addEventListener('dblclick', e => { e.stopPropagation(); markDone(key); });
+        slot.title += ' · Double-click to mark done';
+      }
+      slot.onclick = () => { openModal(date, t, key, sess); };
+      col.appendChild(slot);
+    });
+    grid.appendChild(col);
+  });
+}
+
+function openModal(date, time, key, sess) {
+  modalKey = key;
+  document.getElementById('modal').style.display = 'flex';
+  document.getElementById('modal-slot').textContent = `📅 ${DAYS[date.getDay()]}, ${date.toLocaleDateString('en',{month:'long',day:'numeric'})} at ${time}`;
+  
+  const title = document.getElementById('modal-title');
+  const topicInput = document.getElementById('modal-topic');
+  const durInput = document.getElementById('modal-duration');
+  const delBtn = document.getElementById('modal-delete-btn');
+  const compBtn = document.getElementById('modal-complete-btn');
+  const saveBtn = document.getElementById('modal-save-btn');
+  
+  if (sess) {
+    title.textContent = '✏️ Edit Session';
+    topicInput.value = sess.topic;
+    durInput.value = sess.duration;
+    delBtn.style.display = 'block';
+    compBtn.style.display = 'block';
+    compBtn.textContent = sess.done ? 'Mark Incomplete' : 'Mark Complete';
+    compBtn.style.color = sess.done ? '#f59e0b' : '#10b981';
+    saveBtn.textContent = 'Update';
+  } else {
+    title.textContent = '📅 Schedule Session';
+    topicInput.value = '';
+    durInput.value = '60 min';
+    delBtn.style.display = 'none';
+    compBtn.style.display = 'none';
+    saveBtn.textContent = 'Schedule';
+  }
+  
+  setTimeout(() => topicInput.focus(), 100);
+}
+
+function deleteSession() {
+  if (!modalKey || !sessions[modalKey]) return;
+  delete sessions[modalKey];
+  persist(); closeModal(); renderWeek(); updateStats();
+  showToastPlanner('Session deleted', '🗑️');
+}
+
+function toggleCompleteSession() {
+  if (!modalKey || !sessions[modalKey]) return;
+  sessions[modalKey].done = !sessions[modalKey].done;
+  persist(); closeModal(); renderWeek(); updateStats();
+  if (sessions[modalKey].done) {
+    showToastPlanner('Session completed! +50 XP', '🎉');
+  } else {
+    showToastPlanner('Session marked incomplete', '⏳');
+  }
+}
+
+function saveSession() {
+  const topic = document.getElementById('modal-topic').value.trim();
+  if (!topic) { document.getElementById('modal-topic').focus(); return; }
+  const isDone = sessions[modalKey] ? sessions[modalKey].done : false;
+  sessions[modalKey] = { topic, duration: document.getElementById('modal-duration').value, done: isDone };
+  persist(); closeModal(); renderWeek(); updateStats();
+  showToastPlanner('Session saved', '✅');
+}
+
+function markDone(key) {
+  if (sessions[key]) { 
+    sessions[key].done = true; 
+    persist(); renderWeek(); updateStats(); 
+    showToastPlanner('Session completed! +50 XP', '🎉');
+  }
+}
+
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+function persist() { localStorage.setItem('qg_planner', JSON.stringify(sessions)); }
+
+function updateStats() {
+  const allSess = Object.values(sessions);
+  const planned = allSess.length;
+  const done    = allSess.filter(s => s.done).length;
+  const hrs     = allSess.reduce((acc, s) => { const m = parseInt(s.duration)||60; return acc + m; }, 0);
+  const goal    = parseInt(localStorage.getItem('qg_goal_min') || 60);
+  const weekSess= Object.entries(sessions).filter(([k]) => {
+    const d = new Date(k.split('_')[0]); const now = new Date();
+    const diff = Math.floor((d - now) / 86400000); return diff >= -7 && diff <= 7;
+  });
+  const weekDone  = weekSess.filter(([,v]) => v.done).length;
+  const weekTotal = weekSess.length;
+  const pct = weekTotal > 0 ? Math.round((weekDone / weekTotal) * 100) : 0;
+
+  document.getElementById('stat-planned').textContent = planned;
+  document.getElementById('stat-done').textContent    = done;
+  document.getElementById('stat-hours').textContent   = Math.round(hrs / 60) + 'h';
+  document.getElementById('ring-pct').textContent     = pct + '%';
+  const circumference = 314;
+  document.getElementById('ring-fill').style.strokeDashoffset = circumference - (circumference * pct / 100);
+}
+
+function updateGoalLabel(v) { document.getElementById('goal-label').textContent = v + ' min'; }
+function saveGoal() { localStorage.setItem('qg_goal_min', document.getElementById('goal-input').value); updateStats(); showToastPlanner('Goal saved ✓', '✅'); }
+function prevWeek() { weekOffset--; renderWeek(); }
+function nextWeek() { weekOffset++; renderWeek(); }
+function goToday()  { weekOffset = 0; renderWeek(); }
+
+function showToastPlanner(msg, icon='✅') {
+  let t = document.querySelector('.toast'); if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t);}
+  t.innerHTML=`<span style="font-size:1.1rem">${icon}</span><span style="font-size:.875rem;font-weight:500">${msg}</span>`;
+  t.classList.add('show'); clearTimeout(t._tid); t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Content Generator - GENAI EDUCANTION ENGINE</title>
+<meta name="description" content="AI-powered content generation — auto-generate notes, summaries, examples and case studies."/>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .cge-tab{display:inline-flex;align-items:center;gap:.5rem;padding:.65rem 1.25rem;border-radius:var(--radius-md);font-size:.85rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);transition:all .2s;}
+  .cge-tab:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-bg);}
+  .cge-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg);box-shadow:0 2px 8px rgba(71,70,229,.15);}
+  @keyframes cge-shimmer{0%{background-position:-600px 0}100%{background-position:600px 0}}
+  .cge-loading{background:linear-gradient(90deg,var(--surface-low) 25%,var(--surface-high) 50%,var(--surface-low) 75%);background-size:600px 100%;animation:cge-shimmer 1.4s infinite;border-radius:var(--radius-md);height:400px;}
+  .history-item{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:var(--radius-md);cursor:pointer;transition:background .2s;border:1px solid transparent;}
+  .history-item:hover{background:var(--surface-low);border-color:var(--border);}
+  .history-item.active-hist{background:var(--primary-bg);border-color:rgba(71,70,229,.2);}
+  .type-card{border:1.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem;cursor:pointer;transition:all .2s;text-align:center;}
+  .type-card:hover{border-color:var(--primary);transform:translateY(-2px);box-shadow:var(--shadow-md);}
+  .type-card.active{border-color:var(--primary);background:var(--primary-bg);}
+  .output-box{background:var(--surface-low);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.75rem;font-size:.9rem;line-height:1.9;color:var(--text);white-space:pre-wrap;font-family:'Inter',sans-serif;min-height:300px;max-height:600px;overflow-y:auto;}
+  .stat-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;background:var(--surface-low);border:1px solid var(--border);border-radius:var(--radius-full);font-size:.72rem;font-weight:600;color:var(--text-muted);}
+  .layout{display:grid;grid-template-columns:280px 1fr;gap:1.5rem;align-items:start;}
+  @media(max-width:900px){.layout{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item active" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:2rem;height:2rem;border-radius:var(--radius-md);background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-outlined" style="color:#fff;font-size:1rem">auto_fix_high</span>
+        </div>
+        <div>
+          <div style="font-size:.95rem;font-weight:800;color:var(--text)">Content Generation Engine</div>
+          <div style="font-size:.65rem;color:var(--text-muted)">Auto-generate study materials from any topic</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <span class="badge badge-blue" style="font-size:.7rem">✦ AI-Powered</span>
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+
+
+  </header>
+
+  <div class="page-content">
+
+    <!-- Hero -->
+    <div style="background:linear-gradient(135deg,#eef2ff,#e0f2fe);border:1px solid rgba(71,70,229,.15);border-radius:var(--radius-xl);padding:2rem 2.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.5rem;">
+      <div>
+        <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem">
+          <span class="badge badge-blue" style="font-size:.7rem">Section 4.2</span>
+          <span style="font-size:.75rem;color:var(--text-muted)">Content Generation Engine</span>
+        </div>
+        <h1 style="font-size:1.6rem;font-weight:900;color:var(--text);margin-bottom:.4rem">Generate Study Material Instantly</h1>
+        <p style="font-size:.875rem;color:var(--text-muted);max-width:520px;line-height:1.6">Enter any topic and let AI auto-generate structured <strong>Notes</strong>, concise <strong>Summaries</strong>, worked <strong>Examples</strong>, and real-world <strong>Case Studies</strong> — ready to study in seconds.</p>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap">
+        <div style="text-align:center;padding:.75rem 1.25rem;background:rgba(255,255,255,.7);border-radius:var(--radius-md);border:1px solid var(--border)">
+          <div style="font-size:1.4rem;font-weight:900;color:var(--primary)" id="stat-generated">0</div>
+          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Generated</div>
+        </div>
+        <div style="text-align:center;padding:.75rem 1.25rem;background:rgba(255,255,255,.7);border-radius:var(--radius-md);border:1px solid var(--border)">
+          <div style="font-size:1.4rem;font-weight:900;color:#06B6D4" id="stat-words">0</div>
+          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Total Words</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+
+      <!-- LEFT PANEL -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <!-- Content Type selector -->
+        <div class="card">
+          <h4 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:1rem">Content Type</h4>
+          <div style="display:flex;flex-direction:column;gap:.6rem" id="type-cards">
+            <div class="type-card active" data-type="notes" onclick="selectType(this,'notes')">
+              <span class="material-symbols-outlined" style="font-size:1.5rem;color:#4746E5;display:block;margin-bottom:.35rem">description</span>
+              <div style="font-weight:700;font-size:.875rem;color:var(--text)">Notes</div>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">Structured study notes with key concepts</div>
+            </div>
+            <div class="type-card" data-type="summary" onclick="selectType(this,'summary')">
+              <span class="material-symbols-outlined" style="font-size:1.5rem;color:#06B6D4;display:block;margin-bottom:.35rem">summarize</span>
+              <div style="font-weight:700;font-size:.875rem;color:var(--text)">Summary</div>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">Quick executive summary & TL;DR</div>
+            </div>
+            <div class="type-card" data-type="examples" onclick="selectType(this,'examples')">
+              <span class="material-symbols-outlined" style="font-size:1.5rem;color:#22C55E;display:block;margin-bottom:.35rem">lightbulb</span>
+              <div style="font-weight:700;font-size:.875rem;color:var(--text)">Examples</div>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">Beginner → expert worked examples</div>
+            </div>
+            <div class="type-card" data-type="case_study" onclick="selectType(this,'case_study')">
+              <span class="material-symbols-outlined" style="font-size:1.5rem;color:#F59E0B;display:block;margin-bottom:.35rem">cases</span>
+              <div style="font-weight:700;font-size:.875rem;color:var(--text)">Case Study</div>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">Real-world application & analysis</div>
+            </div>
+            <div class="type-card" data-type="deep_research" onclick="selectType(this,'deep_research')">
+              <span class="material-symbols-outlined" style="font-size:1.5rem;color:#8B5CF6;display:block;margin-bottom:.35rem">travel_explore</span>
+              <div style="font-weight:700;font-size:.875rem;color:var(--text)">Deep Research</div>
+              <div style="font-size:.72rem;color:var(--text-muted);margin-top:.2rem">Comprehensive academic analysis</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+            <h4 style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted)">Recent</h4>
+            <button onclick="clearHistory()" style="background:none;border:none;font-size:.7rem;color:var(--text-light);cursor:pointer;font-weight:600">Clear</button>
+          </div>
+          <div id="history-list" style="display:flex;flex-direction:column;gap:.3rem">
+            <p style="font-size:.78rem;color:var(--text-light);text-align:center;padding:.75rem 0" id="history-empty">No history yet</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+        <!-- Input card -->
+        <div class="card">
+          <label class="input-label" for="cge-topic" style="font-size:.8rem;margin-bottom:.6rem">Enter Topic</label>
+          <div style="display:flex;gap:.75rem;margin-bottom:1rem">
+            <div style="flex:1;position:relative">
+              <span class="material-symbols-outlined" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text-light);pointer-events:none">search</span>
+              <input id="cge-topic" type="text" class="input-field" placeholder="e.g. Quantum Mechanics, Machine Learning, Newton's Laws…" style="padding-left:2.5rem" onkeydown="if(event.key==='Enter')generateContent()"/>
+            </div>
+            <button id="cge-btn" onclick="generateContent()" class="btn btn-primary btn-lg" style="gap:.4rem;white-space:nowrap">
+              <span class="material-symbols-outlined" style="font-size:1.1rem">auto_awesome</span>
+              <span id="cge-btn-text">Generate</span>
+            </button>
+          </div>
+
+          <!-- Quick suggestions -->
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+            <span style="font-size:.72rem;color:var(--text-light);font-weight:600;align-self:center;margin-right:.25rem">Try:</span>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem" id="cge-suggestions"></div>
+        </div>
+
+        <!-- Output card -->
+        <div class="card" id="output-card" style="display:none">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1rem">
+            <div style="display:flex;align-items:center;gap:.6rem">
+              <span id="out-icon" class="material-symbols-outlined" style="font-size:1.1rem;color:var(--primary)">description</span>
+              <span id="out-label" style="font-weight:700;color:var(--text)">Notes</span>
+              <span id="out-topic" class="badge badge-cyan" style="font-size:.65rem"></span>
+            </div>
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              <button onclick="copyContent()" class="btn btn-secondary" style="padding:.4rem .85rem;font-size:.78rem;gap:.3rem"><span class="material-symbols-outlined" style="font-size:.9rem">content_copy</span>Copy</button>
+              <button onclick="downloadContent()" class="btn btn-secondary" style="padding:.4rem .85rem;font-size:.78rem;gap:.3rem"><span class="material-symbols-outlined" style="font-size:.9rem">download</span>Save .txt</button>
+              <button onclick="generateContent()" class="btn btn-ghost" style="padding:.4rem .85rem;font-size:.78rem;gap:.3rem"><span class="material-symbols-outlined" style="font-size:.9rem">refresh</span>Regenerate</button>
+            </div>
+          </div>
+
+          <!-- Stats row -->
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+            <span class="stat-pill"><span class="material-symbols-outlined" style="font-size:.8rem">schedule</span>Generated in <strong id="out-time" style="color:var(--primary);margin-left:.25rem">—</strong></span>
+            <span class="stat-pill"><span class="material-symbols-outlined" style="font-size:.8rem">text_fields</span><strong id="out-words" style="color:var(--primary);margin-left:.25rem">—</strong> words</span>
+            <span class="stat-pill"><span class="material-symbols-outlined" style="font-size:.8rem">timer</span>~<strong id="out-read" style="color:var(--primary);margin-left:.25rem">—</strong> min read</span>
+          </div>
+
+          <div class="output-box" id="cge-output"></div>
+        </div>
+
+        <!-- Empty state -->
+        <div class="card" id="empty-card" style="text-align:center;padding:4rem 2rem">
+          <div style="width:5rem;height:5rem;border-radius:50%;background:linear-gradient(135deg,#eef2ff,#e0f2fe);display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem">
+            <span class="material-symbols-outlined" style="font-size:2.5rem;color:var(--primary)">edit_document</span>
+          </div>
+          <h3 style="font-weight:800;color:var(--text);margin-bottom:.5rem">Ready to Generate</h3>
+          <p style="font-size:.875rem;color:var(--text-muted);max-width:380px;margin:0 auto 1.5rem;line-height:1.6">Select a content type on the left, enter any topic above, and click Generate to create AI-powered study material.</p>
+          <div style="display:flex;justify-content:center;gap:.75rem;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-muted)"><span class="material-symbols-outlined" style="font-size:.9rem;color:#4746E5">check_circle</span>Structured notes</span>
+            <span style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-muted)"><span class="material-symbols-outlined" style="font-size:.9rem;color:#06B6D4">check_circle</span>Quick summaries</span>
+            <span style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-muted)"><span class="material-symbols-outlined" style="font-size:.9rem;color:#22C55E">check_circle</span>Worked examples</span>
+            <span style="display:flex;align-items:center;gap:.4rem;font-size:.78rem;color:var(--text-muted)"><span class="material-symbols-outlined" style="font-size:.9rem;color:#F59E0B">check_circle</span>Case studies</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js?v=2"></script><script src="js/features.js"></script>
+<script>
+const CGE_META = {
+  notes:         { label:'Notes',         icon:'description',    color:'#4746E5' },
+  summary:       { label:'Summary',       icon:'summarize',      color:'#06B6D4' },
+  examples:      { label:'Examples',      icon:'lightbulb',      color:'#22C55E' },
+  case_study:    { label:'Case Study',    icon:'cases',          color:'#F59E0B' },
+  deep_research: { label:'Deep Research', icon:'travel_explore', color:'#8B5CF6' }
+};
+const SUGGESTIONS = ['Quantum Mechanics','Machine Learning','Newton\'s Laws','Photosynthesis','World War II','Python Programming','Calculus','Climate Change','DNA & Genetics','Blockchain','The French Revolution','Relativity'];
+
+let currentType = 'notes';
+let lastContent = '';
+let lastTopic   = '';
+let history     = JSON.parse(localStorage.getItem('cge_history')||'[]');
+let totalWords  = parseInt(localStorage.getItem('cge_words')||'0');
+let totalGen    = parseInt(localStorage.getItem('cge_gen')||'0');
+
+// Init
+(async()=>{
+  const user = await Auth.requireAuth(); if(!user) return;
+  document.getElementById('user-avatar').textContent = user.name[0];
+  initMobileSidebar(); populateUserHeader();
+  buildSuggestions();
+  renderHistory();
+  document.getElementById('stat-generated').textContent = totalGen;
+  document.getElementById('stat-words').textContent = totalWords.toLocaleString();
+})();
+
+function buildSuggestions(){
+  const wrap = document.getElementById('cge-suggestions');
+  SUGGESTIONS.forEach(s=>{
+    const b = document.createElement('button');
+    b.textContent = s;
+    b.className = 'chip badge-blue';
+    b.style.cssText = 'cursor:pointer;font-size:.72rem;';
+    b.onclick = ()=>{ document.getElementById('cge-topic').value=s; generateContent(); };
+    wrap.appendChild(b);
+  });
+}
+
+function selectType(el, type){
+  document.querySelectorAll('.type-card').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  currentType = type;
+}
+
+async function generateContent(){
+  const topic = document.getElementById('cge-topic').value.trim();
+  if(!topic){ showToast('Please enter a topic first','⚠'); return; }
+
+  const btn    = document.getElementById('cge-btn');
+  const btnTxt = document.getElementById('cge-btn-text');
+  const output = document.getElementById('cge-output');
+  const outCard= document.getElementById('output-card');
+  const empty  = document.getElementById('empty-card');
+  const meta   = CGE_META[currentType];
+
+  btn.disabled=true; btnTxt.textContent='Generating…';
+  empty.style.display='none';
+  outCard.style.display='block';
+  output.innerHTML='<div class="cge-loading"></div>';
+
+  const t0 = Date.now();
+  try {
+    const res = await fetch('/api/content/generate_stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({topic, type:currentType})
+    });
+    
+    document.getElementById('out-icon').textContent  = meta.icon;
+    document.getElementById('out-icon').style.color  = meta.color;
+    document.getElementById('out-label').textContent = meta.label;
+    document.getElementById('out-topic').textContent = topic;
+    
+    output.textContent = '';
+    output.style.color = 'var(--text)';
+    let generatedText = '';
+    
+    await Streaming.consume(res, {
+      onToken: (token) => {
+        generatedText += token;
+        output.textContent += token;
+        output.scrollTop = output.scrollHeight;
+      },
+      onDone: () => {
+        const elapsed = ((Date.now()-t0)/1000).toFixed(2);
+        lastContent = generatedText;
+        lastTopic   = topic;
+
+        const words = generatedText.trim().split(/\s+/).length;
+        document.getElementById('out-time').textContent  = elapsed+'s';
+        document.getElementById('out-words').textContent = words.toLocaleString();
+        document.getElementById('out-read').textContent  = Math.ceil(words/200);
+
+        // Update session stats
+        totalGen++;
+        totalWords += words;
+        localStorage.setItem('cge_gen', totalGen);
+        localStorage.setItem('cge_words', totalWords);
+        document.getElementById('stat-generated').textContent = totalGen;
+        document.getElementById('stat-words').textContent = totalWords.toLocaleString();
+
+        // Add to history
+        history.unshift({ topic, type:currentType, label:meta.label, icon:meta.icon, color:meta.color, content:generatedText, time: new Date().toLocaleTimeString() });
+        if(history.length>10) history.pop();
+        localStorage.setItem('cge_history', JSON.stringify(history));
+        renderHistory();
+      },
+      onError: (err) => {
+        throw err; // Caught by outer catch
+      }
+    });
+
+  } catch(e){
+    output.textContent='⚠ Error: '+(e.message||'Generation failed. Please try again.');
+    output.style.color='var(--error)';
+  } finally {
+    btn.disabled=false; btnTxt.textContent='Generate';
+  }
+}
+
+function renderHistory(){
+  const list = document.getElementById('history-list');
+  const empty = document.getElementById('history-empty');
+  list.querySelectorAll('.history-item').forEach(el=>el.remove());
+  if(!history.length){ empty.style.display='block'; return; }
+  empty.style.display='none';
+  history.forEach((h,i)=>{
+    const el = document.createElement('div');
+    el.className='history-item';
+    el.innerHTML=`
+      <span class="material-symbols-outlined" style="font-size:1rem;color:${h.color};flex-shrink:0">${h.icon}</span>
+      <div style="flex:1;overflow:hidden">
+        <div style="font-size:.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.topic}</div>
+        <div style="font-size:.65rem;color:var(--text-muted)">${h.label} · ${h.time}</div>
+      </div>`;
+    el.onclick=()=>loadHistory(i);
+    list.appendChild(el);
+  });
+}
+
+function loadHistory(i){
+  const h = history[i];
+  lastContent = h.content; lastTopic = h.topic;
+  document.getElementById('cge-topic').value = h.topic;
+  document.getElementById('out-icon').textContent  = h.icon;
+  document.getElementById('out-icon').style.color  = h.color;
+  document.getElementById('out-label').textContent = h.label;
+  document.getElementById('out-topic').textContent = h.topic;
+  document.getElementById('cge-output').textContent = h.content;
+  document.getElementById('cge-output').style.color = 'var(--text)';
+  document.getElementById('output-card').style.display='block';
+  document.getElementById('empty-card').style.display='none';
+  const words = h.content.trim().split(/\s+/).length;
+  document.getElementById('out-words').textContent = words.toLocaleString();
+  document.getElementById('out-read').textContent  = Math.ceil(words/200);
+  document.getElementById('out-time').textContent  = '—';
+}
+
+function clearHistory(){
+  history=[]; localStorage.removeItem('cge_history'); renderHistory();
+}
+
+function copyContent(){
+  if(!lastContent){ showToast('Nothing to copy yet','⚠'); return; }
+  navigator.clipboard.writeText(lastContent)
+    .then(()=>showToast('Copied to clipboard ✓','✅'))
+    .catch(()=>{ const ta=document.createElement('textarea'); ta.value=lastContent; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied ✓','✅'); });
+}
+
+function downloadContent(){
+  if(!lastContent){ showToast('Nothing to download yet','⚠'); return; }
+  const meta=CGE_META[currentType];
+  const fn=`${meta.label}_${lastTopic.replace(/\s+/g,'_')}.txt`;
+  const blob=new Blob([lastContent],{type:'text/plain'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=fn; a.click(); URL.revokeObjectURL(url);
+  showToast(`Saved as ${fn}`,'💾');
+}
+
+function showToast(msg,icon='✅'){
+  let t=document.querySelector('.toast');
+  if(!t){t=document.createElement('div');t.className='toast';document.body.appendChild(t);}
+  t.innerHTML=`<span style="font-size:1.1rem">${icon}</span><span style="font-size:.875rem;font-weight:500">${msg}</span>`;
+  t.classList.add('show'); clearTimeout(t._tid);
+  t._tid=setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>

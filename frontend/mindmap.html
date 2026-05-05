@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Mind Map - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  .mindmap-input-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .mindmap-input {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255,255,255,.1);
+    background: rgba(0,0,0,.2);
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s;
+  }
+  .mindmap-input:focus {
+    border-color: var(--primary);
+    background: rgba(0,0,0,.3);
+  }
+  .generate-btn {
+    padding: 0 2rem;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .generate-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99,102,241,.3);
+  }
+  .generate-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+  .mindmap-render-area {
+    background: rgba(0,0,0,.15);
+    border: 1px solid rgba(255,255,255,.05);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    min-height: 700px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+  #echarts-container {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+  }
+  .placeholder-text {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .spinner{width:1.2rem;height:1.2rem;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item active" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer"><a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button></div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--on-surface);cursor:pointer" class="material-symbols-outlined">menu</button>
+      <span style="font-weight:700">Mind Map Generator</span>
+    </div>
+    <span id="user-xp" class="badge badge-blue"></span>
+
+
+  </header>
+
+  <div class="page-content">
+    <div style="margin-bottom:2.5rem">
+      <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:.5rem">AI Mind Map Generator</h2>
+      <p class="muted" style="font-size:1rem">Enter a topic to instantly visualize relationships and concepts in real-time.</p>
+    </div>
+
+    <div class="mindmap-input-container">
+      <input type="text" id="topic-input" class="mindmap-input" placeholder="E.g., Quantum Computing, French Revolution, Cellular Respiration..." autocomplete="off">
+      <button id="generate-btn" class="generate-btn" onclick="generateMindMap()">
+        <span class="material-symbols-outlined">account_tree</span> Generate
+      </button>
+    </div>
+
+    <div class="mindmap-render-area" id="render-area">
+      <div class="placeholder-text" id="placeholder-text">
+        <div style="color:var(--text-muted);text-align:center">
+          <span class="material-symbols-outlined" style="font-size:3rem;opacity:0.3;margin-bottom:1rem;display:block">hub</span>
+          Your mind map will appear here
+        </div>
+      </div>
+      <div id="d3-container" style="display:none; width:100%; height:100%; position:absolute; inset:0;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/api.js?v=2"></script>
+<script src="js/features.js"></script>
+<script>
+async function generateMindMap() {
+  const topicInput = document.getElementById('topic-input');
+  const btn = document.getElementById('generate-btn');
+  const placeholder = document.getElementById('placeholder-text');
+  const container = document.getElementById('d3-container');
+  const topic = topicInput.value.trim();
+  
+  if (!topic) {
+    showToast('Please enter a topic first', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  const originalHtml = btn.innerHTML;
+  btn.innerHTML = '<span class="spinner"></span> Generating...';
+  
+  placeholder.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:1rem;color:var(--text-muted)">
+    <span class="spinner" style="width:2rem;height:2rem;border-color:rgba(99,102,241,.3);border-top-color:var(--primary)"></span>
+    Mapping concepts for "${topic}"...
+  </div>`;
+  placeholder.style.display = 'block';
+  container.style.display = 'none';
+
+  try {
+    const res = await API.post('/api/mindmap/generate', { topic });
+    if(res.error) throw new Error(res.error);
+    
+    placeholder.style.display = 'none';
+    container.style.display = 'block';
+    
+    initD3MindMap(res.mindmap_data);
+    showToast('Mind map generated!', 'success');
+  } catch (err) {
+    console.error(err);
+    placeholder.innerHTML = `<div style="color:#ef4444;text-align:center">
+      <span class="material-symbols-outlined" style="font-size:2rem;margin-bottom:1rem;display:block">error</span>
+      Failed to generate mind map. Please try again.
+    </div>`;
+    placeholder.style.display = 'block';
+    container.style.display = 'none';
+    showToast('Generation failed', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
+let rootLeft, rootRight, svgGroup, svg, treeLayout, zoomBehavior;
+let currentTransform = d3.zoomIdentity.translate(0,0).scale(0.8);
+let currentWidth, currentHeight;
+
+function initD3MindMap(data) {
+  const container = document.getElementById('d3-container');
+  container.innerHTML = '';
+  
+  currentWidth = container.clientWidth;
+  currentHeight = container.clientHeight;
+  
+  currentTransform = d3.zoomIdentity.translate(currentWidth / 2, currentHeight / 2).scale(0.8);
+  
+  zoomBehavior = d3.zoom().scaleExtent([0.1, 3]).on('zoom', (event) => {
+    currentTransform = event.transform;
+    svgGroup.attr('transform', currentTransform);
+  });
+  
+  svg = d3.select('#d3-container')
+    .append('svg')
+    .attr('width', currentWidth)
+    .attr('height', currentHeight)
+    .call(zoomBehavior);
+    
+  svgGroup = svg.append('g')
+    .attr('transform', currentTransform);
+    
+  // Split data into left and right halves
+  const children = data.children || [];
+  const half = Math.ceil(children.length / 2);
+  const leftData = { name: data.name, children: children.slice(0, half) };
+  const rightData = { name: data.name, children: children.slice(half) };
+  
+  treeLayout = d3.tree().nodeSize([100, 320]); // Increased spacing for descriptions
+  
+  rootLeft = d3.hierarchy(leftData);
+  rootRight = d3.hierarchy(rightData);
+  
+  updateD3();
+}
+
+function wrapText(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.2, // ems
+        x = text.attr("x") || 0,
+        y = text.attr("y") || 0,
+        dy = parseFloat(text.attr("dy") || 0),
+        tspan = text.text(null).append("tspan").attr("x", x).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", x).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
+function updateD3() {
+  svgGroup.selectAll('*').remove();
+  
+  treeLayout(rootLeft);
+  treeLayout(rootRight);
+  
+  // Invert X coordinates for the left tree
+  rootLeft.each(d => {
+    d.y = -d.y;
+  });
+  
+  // Combine nodes and links (excluding the duplicate root node from left tree)
+  const nodes = rootRight.descendants().concat(rootLeft.descendants().slice(1));
+  const links = rootRight.links().concat(rootLeft.links());
+  
+  // Link generator
+  const linkGenerator = d3.linkHorizontal()
+    .x(d => d.y)
+    .y(d => d.x);
+    
+  // Draw links
+  svgGroup.selectAll('.link')
+    .data(links)
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+    .attr('d', linkGenerator)
+    .style('fill', 'none')
+    .style('stroke', 'rgba(99, 102, 241, 0.4)')
+    .style('stroke-width', 2);
+    
+  // Draw nodes
+  const node = svgGroup.selectAll('.node')
+    .data(nodes)
+    .enter()
+    .append('g')
+    .attr('class', 'node')
+    .attr('transform', d => `translate(${d.y},${d.x})`)
+    .style('cursor', 'pointer')
+    .on('click', (event, d) => {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else if (d._children) {
+        d.children = d._children;
+        d._children = null;
+      }
+      
+      // Keep roots in sync
+      if (d.depth === 0) {
+        const otherRoot = (d === rootLeft) ? rootRight : rootLeft;
+        if (otherRoot.children) {
+          otherRoot._children = otherRoot.children;
+          otherRoot.children = null;
+        } else if (otherRoot._children) {
+          otherRoot.children = otherRoot._children;
+          otherRoot._children = null;
+        }
+      }
+      updateD3();
+    });
+    
+  // Calculate text widths to size the rects dynamically
+  const tempText = svg.append('text').style('font-family', 'Inter, sans-serif').style('font-size', '14px').style('font-weight', '600');
+  
+  node.each(function(d) {
+    const g = d3.select(this);
+    
+    // Name text
+    const nameText = g.append('text')
+      .text(d.data.name)
+      .style('font-family', 'Inter, sans-serif')
+      .style('font-size', d.depth === 0 ? '16px' : '14px')
+      .style('font-weight', d.depth === 0 ? '800' : '700')
+      .style('fill', '#fff')
+      .attr('text-anchor', 'middle')
+      .attr('dy', d.data.description ? '-0.6em' : '0.35em');
+
+    // Description text
+    let descText;
+    if (d.data.description) {
+      descText = g.append('text')
+        .text(d.data.description)
+        .style('font-family', 'Inter, sans-serif')
+        .style('font-size', '10px')
+        .style('font-weight', '400')
+        .style('fill', 'rgba(255,255,255,0.7)')
+        .attr('text-anchor', 'middle')
+        .attr('dy', '0.8em')
+        .call(wrapText, 180);
+    }
+      
+    const bbox = g.node().getBBox();
+    const paddingX = 20;
+    const paddingY = 15;
+    const rectWidth = Math.max(bbox.width + paddingX * 2, d.data.description ? 200 : 120);
+    const rectHeight = bbox.height + paddingY * 2;
+    
+    // Add glowing drop shadow filter to SVG
+    if (!svg.select('defs').node()) {
+      const defs = svg.append('defs');
+      const filter = defs.append('filter').attr('id', 'glow');
+      filter.append('feGaussianBlur').attr('stdDeviation', '4').attr('result', 'coloredBlur');
+      const feMerge = filter.append('feMerge');
+      feMerge.append('feMergeNode').attr('in', 'coloredBlur');
+      feMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+    }
+    
+    g.insert('rect', 'text')
+      .attr('x', -rectWidth / 2)
+      .attr('y', -rectHeight / 2)
+      .attr('width', rectWidth)
+      .attr('height', rectHeight)
+      .attr('rx', 12)
+      .style('fill', d.depth === 0 ? 'linear-gradient(135deg, #6366f1, #3b82f6)' : (d._children ? 'rgba(99, 102, 241, 0.4)' : 'rgba(30, 30, 45, 0.95)'))
+      .style('stroke', d.depth === 0 ? 'transparent' : (d._children ? '#8b5cf6' : '#6366f1'))
+      .style('stroke-width', d.depth === 0 ? 0 : 2)
+      .style('filter', d.depth === 0 ? 'url(#glow)' : 'none');
+      
+    if (d.depth === 0) {
+        g.select('rect').style('fill', '#4f46e5');
+    }
+    
+    // Add collapse/expand indicator
+    if (d.children || d._children) {
+      g.append('circle')
+        .attr('cx', d.y > 0 || (d.depth === 0 && d === rootRight) ? rectWidth / 2 : -rectWidth / 2)
+        .attr('cy', 0)
+        .attr('r', 5)
+        .style('fill', d._children ? '#f59e0b' : '#10b981')
+        .style('stroke', '#1e1e2d')
+        .style('stroke-width', 2);
+    }
+  });
+  
+  tempText.remove();
+  
+  // Apply the transform (we don't reset it here so panning stays while updating)
+  svg.call(zoomBehavior.transform, currentTransform);
+}
+
+document.getElementById('topic-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') generateMindMap();
+});
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await Auth.requireAuth();
+  populateUserHeader();
+  initMobileSidebar();
+});
+</script>
+</body>
+</html>

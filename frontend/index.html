@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GENAI EDUCANTION ENGINE - Master Any Subject with AI-Powered Precision</title>
+<meta name="description" content="GENAI EDUCANTION ENGINE uses advanced cognitive models to build personalized learning paths, generate smart assessments, and provide real-time AI tutoring."/>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  body { overflow-x: hidden; background: var(--background); }
+  .landing-nav {
+    position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 50;
+    background: rgba(248,250,252,0.92); backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex; align-items: center; justify-content: space-between; padding: 0 2.5rem;
+  }
+  .hero { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; position: relative; overflow: hidden; padding: 6rem 2rem 4rem; background: linear-gradient(135deg, #eef2ff 0%, #e0f2fe 50%, #f0fdf4 100%); }
+  .hero-orb { position: absolute; border-radius: 50%; filter: blur(100px); pointer-events: none; }
+  .hero-orb-1 { width: 600px; height: 600px; background: rgba(71,70,229,0.15); top: -10%; left: -15%; }
+  .hero-orb-2 { width: 400px; height: 400px; background: rgba(6,182,212,0.12); bottom: -5%; right: -10%; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 1rem; border-radius: var(--radius-full); background: rgba(71,70,229,0.08); border: 1px solid rgba(71,70,229,0.2); margin-bottom: 2rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; color: var(--primary); }
+  .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse-glow 2s infinite; }
+  h1.hero-title { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; line-height: 1.08; letter-spacing: -0.03em; margin-bottom: 1.5rem; color: var(--text); }
+  .hero-sub { font-size: 1.1rem; color: var(--text-muted); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+  .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2rem; transition: all 0.3s; box-shadow: var(--shadow-sm); }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(71,70,229,0.25); box-shadow: var(--shadow-lg); }
+  .feature-icon { width: 3rem; height: 3rem; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem; font-size: 1.5rem; }
+  .section { padding: 6rem 2.5rem; }
+  .section-header { text-align: center; margin-bottom: 4rem; }
+  .section-header h2 { font-size: 2.25rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text); }
+  .section-header p { color: var(--text-muted); max-width: 560px; margin: 0 auto; }
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 2rem; }
+  .step-num { width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; margin-bottom: 1.25rem; }
+  .testimonials { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 1.5rem; }
+  .testimonial-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-sm); }
+  .stats-row { display: flex; gap: 3rem; justify-content: center; flex-wrap: wrap; }
+  .stat-item { text-align: center; }
+  .stat-num { font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  footer { background: #0F172A; border-top: 1px solid rgba(255,255,255,0.08); padding: 4rem 2.5rem 2rem; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+  .footer-link { color: #94a3b8; font-size: 0.875rem; text-decoration: none; display: block; margin-bottom: 0.6rem; transition: color 0.2s; }
+  .footer-link:hover { color: #06B6D4; }
+  @media (max-width: 768px) { .landing-nav nav { display: none; } .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+</style>
+</head>
+<body>
+<!-- Nav -->
+<header class="landing-nav">
+  <div style="display:flex;align-items:center;gap:0.75rem">
+    <img src="img/logo.png" alt="Logo" style="width:32px;height:32px;object-fit:contain">
+    <a href="/" style="text-decoration:none"><span class="text-gradient-blue" style="font-size:1.25rem;font-weight:900">GENAI EDUCANTION ENGINE</span></a>
+  </div>
+  <nav style="display:flex;gap:1rem">
+    <a href="#features" class="btn btn-ghost" style="padding:0.4rem 0.9rem;font-size:0.85rem">Features</a>
+    <a href="#how" class="btn btn-ghost" style="padding:0.4rem 0.9rem;font-size:0.85rem">How it works</a>
+    <a href="login.html" class="btn btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.85rem">Log In</a>
+    <a href="signup.html" class="btn btn-primary" style="padding:0.4rem 0.9rem;font-size:0.85rem">Get Started</a>
+  </nav>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div style="position:relative;z-index:1;max-width:900px;margin:0 auto">
+    <div class="hero-badge"><span class="pulse-dot"></span>V2.0 NOW POWERED BY GPT-4O</div>
+    <h1 class="hero-title">Master Any Subject with <span class="text-gradient">AI-Powered Precision</span></h1>
+    <p class="hero-sub">GENAI EDUCANTION ENGINE uses advanced cognitive models to build personalized learning paths, generate smart assessments, and provide real-time tutoring for students and professionals.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:4rem">
+      <a href="signup.html" class="btn btn-primary btn-lg">🚀 Get Started for Free</a>
+      <a href="#how" class="btn btn-secondary btn-lg">▶ How it Works</a>
+    </div>
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-num">100K+</div><div style="color:var(--on-surface-variant);font-size:0.85rem;font-weight:600">Learners</div></div>
+      <div class="stat-item"><div class="stat-num">94%</div><div style="color:var(--on-surface-variant);font-size:0.85rem;font-weight:600">Accuracy Rate</div></div>
+      <div class="stat-item"><div class="stat-num">50+</div><div style="color:var(--on-surface-variant);font-size:0.85rem;font-weight:600">Languages</div></div>
+      <div class="stat-item"><div class="stat-num">24/7</div><div style="color:var(--on-surface-variant);font-size:0.85rem;font-weight:600">AI Tutor</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features" style="background:var(--surface-low)">
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="section-header">
+      <h2>The Intelligent <span class="text-gradient">Learning Ecosystem</span></h2>
+      <p>Seven core modules designed to synchronize your study habits with AI precision.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card ai-glow">
+        <div class="feature-icon" style="background:rgba(71,70,229,0.10);color:#4746E5"><span class="material-symbols-outlined">route</span></div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Adaptive Learning Path</h3>
+        <p class="muted" style="font-size:0.9rem">AI maps your knowledge gaps and builds a dynamic curriculum that evolves with every correct answer.</p>
+        <div style="margin-top:1rem"><span class="badge badge-blue">✦ Based on your last quiz</span></div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(6,182,212,0.10);color:#06B6D4"><span class="material-symbols-outlined">auto_awesome</span></div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Universal Content Hub</h3>
+        <p class="muted" style="font-size:0.9rem">Import PDFs, YouTube videos, or web links. Our AI instantly converts them into structured study notes.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(34,197,94,0.10);color:#22C55E"><span class="material-symbols-outlined">smart_toy</span></div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">24/7 AI Tutor</h3>
+        <p class="muted" style="font-size:0.9rem">Get stuck on a concept? Chat with our specialist tutor for instant, context-aware explanations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(71,70,229,0.10);color:#4746E5"><span class="material-symbols-outlined">quiz</span></div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Smart Assessments</h3>
+        <p class="muted" style="font-size:0.9rem">Varied formats including multiple-choice, essay analysis, and code reviews with instant feedback.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(6,182,212,0.10);color:#06B6D4"><span class="material-symbols-outlined">insights</span></div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Predictive Analytics</h3>
+        <p class="muted" style="font-size:0.9rem">Data visualization that predicts your exam performance with up to 94% accuracy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.10);color:#d97706"><span class="material-symbols-outlined">emoji_events</span></div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Gamified Mastery</h3>
+        <p class="muted" style="font-size:0.9rem">Climb leaderboards and unlock achievements while learning in over 50+ supported languages.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- How it Works -->
+<section class="section" id="how">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="section-header">
+      <h2>Intelligence in <span class="text-gradient">Three Steps</span></h2>
+    </div>
+    <div class="steps">
+      <div class="card" style="text-align:center">
+        <div class="step-num" style="background:rgba(71,70,229,0.10);border:2px solid rgba(71,70,229,0.25);color:#4746E5;margin:0 auto 1rem">1</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Feed the Engine</h3>
+        <p class="muted" style="font-size:0.9rem">Upload your syllabus, lecture notes, or textbooks. Our AI identifies key learning objectives instantly.</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="step-num" style="background:rgba(6,182,212,0.10);border:2px solid rgba(6,182,212,0.25);color:#06B6D4;margin:0 auto 1rem">2</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Targeted Drill</h3>
+        <p class="muted" style="font-size:0.9rem">Engage with hyper-focused quizzes tailored to your specific retention weaknesses.</p>
+      </div>
+      <div class="card" style="text-align:center">
+        <div class="step-num" style="background:rgba(34,197,94,0.10);border:2px solid rgba(34,197,94,0.25);color:#22C55E;margin:0 auto 1rem">3</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem">Achieve Mastery</h3>
+        <p class="muted" style="font-size:0.9rem">Review detailed feedback loops until every concept is solidified in long-term memory.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section" style="background:var(--surface-container)">
+  <div style="max-width:1100px;margin:0 auto">
+    <div class="section-header">
+      <div style="display:flex;justify-content:center;gap:4px;margin-bottom:0.75rem;font-size:1.2rem">⭐⭐⭐⭐⭐</div>
+      <h2>Loved by <span class="text-gradient">Lifelong Learners</span></h2>
+    </div>
+    <div class="testimonials">
+      <div class="testimonial-card">
+        <p class="muted" style="font-style:italic;margin-bottom:1.5rem">"GENAI EDUCANTION ENGINE turned my 400-page medical textbook into manageable daily sprints. I passed my boards with flying colors."</p>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div style="width:2.75rem;height:2.75rem;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem">S</div>
+          <div><div style="font-weight:700;font-size:0.875rem">Dr. Sarah Jenkins</div><div style="color:var(--on-surface-variant);font-size:0.75rem">Medical Resident</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card ai-glow" style="transform:scale(1.03)">
+        <div style="position:absolute;top:-0.75rem;left:50%;transform:translateX(-50%)"><span class="badge badge-blue" style="font-size:0.65rem">TOP RATED</span></div>
+        <p class="muted" style="font-style:italic;margin-bottom:1.5rem">"The AI tutor is better than most humans I've asked for help. It explains complex quantum physics like a bedtime story."</p>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div style="width:2.75rem;height:2.75rem;border-radius:50%;background:linear-gradient(135deg,#4fdbc8,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem">M</div>
+          <div><div style="font-weight:700;font-size:0.875rem">Marcus Thorne</div><div style="color:var(--on-surface-variant);font-size:0.75rem">Physics Graduate</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <p class="muted" style="font-style:italic;margin-bottom:1.5rem">"Our entire dev team uses the Content Hub to stay updated on new frameworks. A game-changer for corporate training."</p>
+        <div style="display:flex;align-items:center;gap:0.75rem">
+          <div style="width:2.75rem;height:2.75rem;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem">A</div>
+          <div><div style="font-weight:700;font-size:0.875rem">Alex Rivera</div><div style="color:var(--on-surface-variant);font-size:0.75rem">CTO at TechFlow</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section" style="text-align:center">
+  <div style="max-width:640px;margin:0 auto" class="card ai-glow" style="padding:3rem 2rem">
+    <h2 style="font-size:2rem;font-weight:900;margin-bottom:1rem">Stop Browsing. <span class="text-gradient">Start Mastering.</span></h2>
+    <p class="muted" style="margin-bottom:2rem">Join the future of education. Your first AI-powered learning path is waiting.</p>
+    <a href="signup.html" class="btn btn-primary btn-lg" style="margin-bottom:0.75rem">🚀 Get Started for Free</a>
+    <p style="font-size:0.75rem;color:var(--on-surface-variant)">No credit card required. Cancel anytime.</p>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div style="max-width:1200px;margin:0 auto">
+    <div class="footer-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
+          <img src="img/logo.png" alt="Logo" style="width:32px;height:32px;filter:brightness(0) invert(1);object-fit:contain">
+          <div class="text-gradient" style="font-size:1.25rem;font-weight:900">GENAI EDUCANTION ENGINE</div>
+        </div>
+        <p style="color:#94a3b8;font-size:0.875rem;max-width:280px;line-height:1.6">Empowering the world's most curious minds through cognitive AI and personalized learning paths.</p>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:1rem;font-size:0.875rem;color:#e2e8f0">Product</div>
+        <a href="dashboard.html" class="footer-link">Dashboard</a>
+        <a href="assessment.html" class="footer-link">Assessments</a>
+        <a href="ai-tutor.html" class="footer-link">AI Tutor</a>
+        <a href="content-hub.html" class="footer-link">Content Hub</a>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:1rem;font-size:0.875rem;color:#e2e8f0">Account</div>
+        <a href="login.html" class="footer-link">Log In</a>
+        <a href="signup.html" class="footer-link">Sign Up</a>
+        <a href="leaderboard.html" class="footer-link">Leaderboard</a>
+        <a href="analytics.html" class="footer-link">Analytics</a>
+      </div>
+      <div>
+        <div style="font-weight:700;margin-bottom:1rem;font-size:0.875rem;color:#e2e8f0">Legal</div>
+        <a href="#" class="footer-link">Privacy Policy</a>
+        <a href="#" class="footer-link">Terms of Service</a>
+        <a href="#" class="footer-link">Cookie Policy</a>
+      </div>
+    </div>
+    <hr style="border:none;height:1px;background:rgba(255,255,255,0.08);margin:1rem 0"/>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+      <span style="color:#64748b;font-size:0.8rem">© 2024 GENAI EDUCANTION ENGINE. All rights reserved.</span>
+      <div style="display:flex;gap:1.5rem">
+        <span style="color:#64748b;font-size:0.8rem">🔒 SOC2 Compliant</span>
+        <span style="color:#64748b;font-size:0.8rem">🇪🇺 GDPR Compliant</span>
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="js/theme.js"></script><script src="js/api.js"></script>
+<script>
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => { e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'}); });
+  });
+  // Check if already logged in
+  Auth.me().then(user => { if(user) { /* already logged in, could redirect */ } });
+</script>
+</body>
+</html>

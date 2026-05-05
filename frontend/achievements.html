@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Achievements - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .badge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem}
+  .badge-card{text-align:center;padding:1.75rem 1.25rem;border-radius:var(--radius-xl);border:1.5px solid var(--border);background:var(--surface);transition:all .3s;position:relative;overflow:hidden}
+  .badge-card.unlocked{border-color:var(--primary);box-shadow:0 4px 20px rgba(71,70,229,.12)}
+  .badge-card.unlocked:hover{transform:translateY(-4px);box-shadow:0 8px 30px rgba(71,70,229,.18)}
+  .badge-card.locked{opacity:.5;filter:grayscale(.8)}
+  .badge-icon-wrap{width:4rem;height:4rem;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .85rem;transition:transform .3s}
+  .badge-card.unlocked .badge-icon-wrap{animation:float 3s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .locked-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(var(--background-rgb,.95) .5)}
+  .progress-ring{position:relative;width:140px;height:140px;margin:0 auto}
+  .progress-ring svg{transform:rotate(-90deg)}
+  .progress-ring circle{fill:none;stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset 1s ease}
+  .ring-track{stroke:var(--surface-high)}
+  .ring-prog{stroke:url(#achievGrad);stroke-dasharray:376;stroke-dashoffset:376}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .xp-pill{display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .55rem;border-radius:var(--radius-full);font-size:.65rem;font-weight:700;background:rgba(71,70,229,.08);color:var(--primary);border:1px solid rgba(71,70,229,.15)}
+  .confetti{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1000}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item active" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+      <div style="display:flex;align-items:center;gap:.6rem">
+        <div style="width:2rem;height:2rem;border-radius:var(--radius-md);background:linear-gradient(135deg,#F59E0B,#EF4444);display:flex;align-items:center;justify-content:center">
+          <span class="material-symbols-outlined" style="color:#fff;font-size:1rem">military_tech</span>
+        </div>
+        <span style="font-size:.95rem;font-weight:800;color:var(--text)">Achievements</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <!-- Hero -->
+    <div class="card" style="margin-bottom:2rem;background:linear-gradient(135deg,var(--primary-bg),var(--secondary-bg));border-color:rgba(71,70,229,.15)">
+      <div style="display:flex;align-items:center;gap:2.5rem;flex-wrap:wrap">
+        <div class="progress-ring">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <defs><linearGradient id="achievGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#4746E5"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient></defs>
+            <circle class="ring-track" cx="70" cy="70" r="60"/>
+            <circle class="ring-prog" id="ring-prog" cx="70" cy="70" r="60"/>
+          </svg>
+          <div class="ring-center">
+            <div style="font-size:1.6rem;font-weight:900;color:var(--primary)" id="earned-count">0</div>
+            <div style="font-size:.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">of <span id="total-count">12</span> earned</div>
+          </div>
+        </div>
+        <div style="flex:1">
+          <h1 style="font-size:1.5rem;font-weight:900;color:var(--text);margin-bottom:.4rem">🏆 Your Achievements</h1>
+          <p style="color:var(--text-muted);font-size:.875rem;margin-bottom:1rem">Unlock badges by reaching milestones. Every badge rewards bonus XP.</p>
+          <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+            <div style="text-align:center;padding:.6rem 1.25rem;background:rgba(255,255,255,.5);border-radius:var(--radius-md);border:1px solid var(--border)">
+              <div style="font-size:1.1rem;font-weight:900;color:var(--primary)" id="badge-xp">0</div>
+              <div style="font-size:.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">Badge XP</div>
+            </div>
+            <div style="text-align:center;padding:.6rem 1.25rem;background:rgba(255,255,255,.5);border-radius:var(--radius-md);border:1px solid var(--border)">
+              <div style="font-size:1.1rem;font-weight:900;color:var(--accent)" id="pct-text">0%</div>
+              <div style="font-size:.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">Completion</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Badge grid -->
+    <div class="badge-grid" id="badge-grid"></div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/api.js"></script><script src="js/features.js"></script>
+<script>
+(async () => {
+  const user = await Auth.requireAuth(); if(!user) return;
+  document.getElementById('user-avatar').textContent = user.name[0];
+  initMobileSidebar(); populateUserHeader();
+
+  try {
+    const data = await API.get('/api/achievements');
+    renderBadges(data);
+  } catch(e) { console.error(e); }
+})();
+
+function renderBadges(data) {
+  const { badges, earned, total, pct } = data;
+  document.getElementById('earned-count').textContent = earned;
+  document.getElementById('total-count').textContent  = total;
+  document.getElementById('pct-text').textContent     = pct + '%';
+  const badgeXP = badges.filter(b=>b.unlocked).reduce((s,b)=>s+b.xp,0);
+  document.getElementById('badge-xp').textContent = badgeXP + ' XP';
+
+  // Animate ring
+  const circumference = 376;
+  setTimeout(()=>{ document.getElementById('ring-prog').style.strokeDashoffset = circumference - (circumference * pct / 100); }, 300);
+
+  const grid = document.getElementById('badge-grid');
+  badges.forEach((b, i) => {
+    const card = document.createElement('div');
+    card.className = 'badge-card ' + (b.unlocked ? 'unlocked' : 'locked');
+    card.style.animationDelay = (i * 0.05) + 's';
+    card.innerHTML = `
+      <div class="badge-icon-wrap" style="background:${b.color}18">
+        <span class="material-symbols-outlined" style="font-size:2rem;color:${b.color}">${b.icon}</span>
+      </div>
+      ${b.unlocked ? '<div style="position:absolute;top:.75rem;right:.75rem;font-size:1rem">✅</div>' : ''}
+      <h4 style="font-size:.875rem;font-weight:800;color:var(--text);margin-bottom:.35rem">${b.name}</h4>
+      <p style="font-size:.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:.75rem">${b.desc}</p>
+      <span class="xp-pill"><span class="material-symbols-outlined" style="font-size:.75rem">bolt</span>+${b.xp} XP</span>
+      ${b.unlocked ? '<div style="margin-top:.6rem;font-size:.65rem;color:var(--accent);font-weight:700">✓ UNLOCKED</div>' : '<div style="margin-top:.6rem;font-size:.65rem;color:var(--text-light);font-weight:600">🔒 Locked</div>'}
+    `;
+    card.classList.add('fade-in-up');
+    grid.appendChild(card);
+  });
+}
+</script>
+</body>
+</html>

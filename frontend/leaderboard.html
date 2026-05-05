@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Leaderboard - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .lb-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+  .lb-row{display:flex;align-items:center;gap:1rem;padding:.9rem 1rem;border-radius:var(--radius-md);margin-bottom:.5rem;border:1px solid transparent;transition:all .2s}
+  .lb-row:hover{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.08)}
+  .lb-row.me{background:rgba(59,130,246,.08);border-color:rgba(59,130,246,.25)}
+  .rank-badge{width:2.25rem;height:2.25rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;flex-shrink:0}
+  .ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+  .ach-card{border:1px solid rgba(255,255,255,.07);border-radius:var(--radius-lg);padding:1.25rem;display:flex;align-items:center;gap:.9rem;transition:all .2s}
+  .ach-card.locked{opacity:.45;filter:grayscale(.8)}
+  .ach-card.unlocked{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.04)}
+  .ach-icon{width:2.75rem;height:2.75rem;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  @media(max-width:900px){.lb-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item active" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer"><a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button></div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--on-surface);cursor:pointer" class="material-symbols-outlined">menu</button>
+      <span style="font-weight:700">Leaderboard & Achievements</span>
+    </div>
+    <span id="user-xp" class="badge badge-blue"></span>
+
+
+  </header>
+
+  <div class="page-content">
+    <div style="margin-bottom:2rem">
+      <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:.35rem">🏆 Global Rankings</h2>
+      <p class="muted">Compete with learners worldwide. Weekly XP resets every Monday.</p>
+    </div>
+
+    <div class="lb-grid">
+      <!-- Leaderboard -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <h3 style="font-weight:700">Weekly Leaderboard</h3>
+          <span class="badge badge-blue" id="my-rank-badge">Your rank: —</span>
+        </div>
+        <div class="card" style="padding:1.25rem">
+          <div id="leaderboard-list"></div>
+        </div>
+      </div>
+
+      <!-- Top 3 podium -->
+      <div>
+        <h3 style="font-weight:700;margin-bottom:1.25rem">🥇 This Week's Champions</h3>
+        <div class="card" style="padding:1.5rem">
+          <div style="display:flex;align-items:flex-end;justify-content:center;gap:1rem;margin-bottom:1.5rem" id="podium">
+            <!-- injected -->
+          </div>
+          <hr class="divider"/>
+          <div style="text-align:center">
+            <p class="muted" style="font-size:.8rem">Complete quizzes to earn XP and climb the ranks!</p>
+            <a href="assessment.html" class="btn btn-primary" style="margin-top:.75rem">Take a Quiz →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Achievements -->
+    <div style="margin-top:2rem">
+      <h3 style="font-weight:700;margin-bottom:1.25rem">🎖 Achievements</h3>
+      <div class="ach-grid" id="achievements-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js"></script><script src="js/features.js"></script>
+<script>
+const RANK_COLORS = ['#fbbf24','#9ca3af','#c2853a'];
+const RANK_EMOJI  = ['🥇','🥈','🥉'];
+
+async function init(){
+  await Auth.requireAuth(); populateUserHeader(); initMobileSidebar();
+  try{
+    const d=await API.get('/api/leaderboard');
+
+    // My rank
+    if(d.my_rank) document.getElementById('my-rank-badge').textContent='Your rank: #'+d.my_rank;
+
+    // List
+    const list=document.getElementById('leaderboard-list');
+    d.leaderboard.forEach(e=>{
+      const isTop=e.rank<=3;
+      list.innerHTML+=`<div class="lb-row${e.is_current_user?' me':''}">
+        <div class="rank-badge" style="background:${isTop?RANK_COLORS[e.rank-1]+'22':'rgba(255,255,255,.06)'};color:${isTop?RANK_COLORS[e.rank-1]:'#94a3b8'};border:1px solid ${isTop?RANK_COLORS[e.rank-1]+'44':'rgba(255,255,255,.08)'}">
+          ${isTop?RANK_EMOJI[e.rank-1]:e.rank}
+        </div>
+        <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:linear-gradient(135deg,hsl(${e.rank*47},70%,55%),hsl(${e.rank*47+60},70%,45%));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;flex-shrink:0">${e.name[0]}</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:.9rem">${e.name}${e.is_current_user?' <span class="badge badge-blue" style="font-size:.6rem">YOU</span>':''}</div>
+          <div style="font-size:.75rem;color:#64748b">${e.level} · 🔥 ${e.streak}-day streak</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-weight:800;font-size:.95rem;color:${isTop?RANK_COLORS[e.rank-1]:'var(--on-surface)'}">${e.weekly_xp.toLocaleString()}</div>
+          <div style="font-size:.65rem;color:#475569;font-weight:700;text-transform:uppercase;letter-spacing:.05em">XP this week</div>
+        </div>
+      </div>`;
+    });
+
+    // Podium
+    const top3=d.leaderboard.slice(0,3);
+    const order=[1,0,2]; // silver, gold, bronze
+    const heights=['4.5rem','6rem','3.5rem'];
+    const podium=document.getElementById('podium');
+    order.forEach((idx,pos)=>{
+      const e=top3[idx]; if(!e)return;
+      podium.innerHTML+=`<div style="display:flex;flex-direction:column;align-items:center;gap:.5rem">
+        <div style="width:3rem;height:3rem;border-radius:50%;background:linear-gradient(135deg,hsl(${idx*47},70%,55%),hsl(${idx*47+60},70%,45%));display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;border:2px solid ${RANK_COLORS[idx]}">${e.name[0]}</div>
+        <div style="font-size:.75rem;font-weight:700;text-align:center">${e.name.split(' ')[0]}</div>
+        <div style="font-size:.8rem;font-weight:800;color:${RANK_COLORS[idx]}">${e.weekly_xp.toLocaleString()} XP</div>
+        <div style="background:${RANK_COLORS[idx]}22;border:1px solid ${RANK_COLORS[idx]}44;border-radius:var(--radius-sm) var(--radius-sm) 0 0;width:4rem;height:${heights[pos]};display:flex;align-items:flex-start;justify-content:center;padding-top:.5rem;font-size:1.5rem">${RANK_EMOJI[idx]}</div>
+      </div>`;
+    });
+
+    // Achievements
+    const achGrid=document.getElementById('achievements-grid');
+    d.achievements.forEach(a=>{
+      const bg=a.unlocked?'rgba(251,191,36,.15)':'rgba(255,255,255,.04)';
+      const iconColor=a.unlocked?'#fbbf24':'#475569';
+      achGrid.innerHTML+=`<div class="ach-card ${a.unlocked?'unlocked':'locked'}">
+        <div class="ach-icon" style="background:${bg}"><span class="material-symbols-outlined" style="color:${iconColor}">${a.icon}</span></div>
+        <div>
+          <div style="font-weight:700;font-size:.875rem;margin-bottom:.2rem">${a.unlocked?'':' 🔒 '}${a.title}</div>
+          <div style="font-size:.75rem;color:#64748b;margin-bottom:.3rem">${a.description}</div>
+          <div style="font-size:.7rem;font-weight:700;color:${a.unlocked?'#fbbf24':'#475569'}">+${a.xp_reward} XP${a.unlocked?' · Earned '+a.unlocked_at:''}</div>
+        </div>
+      </div>`;
+    });
+
+  }catch(e){showToast('Failed to load leaderboard','error');console.error(e);}
+}
+init();
+</script>
+</body>
+</html>

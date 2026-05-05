@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Profile - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .avatar-circle{width:5rem;height:5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;color:#fff;cursor:pointer;transition:transform .2s;flex-shrink:0;border:3px solid rgba(255,255,255,.3);box-shadow:var(--shadow-md)}
+  .avatar-circle:hover{transform:scale(1.05)}
+  .color-swatch{width:2rem;height:2rem;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .2s,border-color .2s}
+  .color-swatch:hover,.color-swatch.active{transform:scale(1.15);border-color:#fff;box-shadow:0 0 0 2px var(--primary)}
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+  .profile-grid{display:grid;grid-template-columns:1fr 2fr;gap:1.5rem;align-items:start}
+  .xp-bar-wrap{background:var(--surface-high);border-radius:var(--radius-full);height:10px;overflow:hidden;margin-top:.5rem}
+  .xp-bar-fill{height:100%;border-radius:var(--radius-full);background:linear-gradient(90deg,var(--primary),var(--secondary));transition:width .8s ease}
+  .edit-field{display:flex;flex-direction:column;gap:.4rem;margin-bottom:1.25rem}
+  @media(max-width:900px){.profile-grid{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item active" href="profile.html"><span class="material-symbols-outlined">person</span>My Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:.75rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+      <span class="text-gradient" style="font-size:1rem;font-weight:800">My Profile</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:.75rem">
+
+
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+  </header>
+
+  <div class="page-content">
+
+    <!-- Profile Hero -->
+    <div class="card" style="margin-bottom:1.5rem;background:linear-gradient(135deg,var(--primary-bg),var(--secondary-bg))">
+      <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+        <div id="avatar-display" class="avatar-circle" onclick="document.getElementById('color-picker-wrap').classList.toggle('hidden')" style="background:#4746E5">A</div>
+        <div style="flex:1">
+          <h1 id="profile-name" style="font-size:1.5rem;font-weight:900;color:var(--text)">Loading...</h1>
+          <p id="profile-email" style="color:var(--text-muted);font-size:.875rem;margin:.25rem 0"></p>
+          <p id="profile-bio" style="color:var(--text-muted);font-size:.825rem;margin-top:.35rem;font-style:italic"></p>
+          <div style="display:flex;align-items:center;gap:.75rem;margin-top:.75rem;flex-wrap:wrap">
+            <span class="badge badge-blue" id="profile-level"></span>
+            <span class="badge badge-green" id="profile-streak"></span>
+            <span style="font-size:.75rem;color:var(--text-light)">Member since <strong id="profile-joined"></strong></span>
+          </div>
+        </div>
+        <div style="text-align:center;min-width:120px">
+          <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted);margin-bottom:.35rem">XP Progress</div>
+          <div style="font-size:1.6rem;font-weight:900;color:var(--primary)" id="profile-xp">0</div>
+          <div class="xp-bar-wrap"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+          <div style="font-size:.65rem;color:var(--text-muted);margin-top:.25rem">to next level</div>
+        </div>
+      </div>
+
+      <!-- Color picker (hidden by default) -->
+      <div id="color-picker-wrap" class="hidden" style="margin-top:1.25rem;padding:1rem;background:var(--surface);border-radius:var(--radius-md);border:1px solid var(--border)">
+        <p style="font-size:.75rem;font-weight:700;color:var(--text-muted);margin-bottom:.6rem">Choose Avatar Color</p>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        </div>
+      </div>
+    </div>
+
+    <style>.hidden{display:none!important}</style>
+
+    <div class="profile-grid">
+      <!-- Left: Stats -->
+      <div style="display:flex;flex-direction:column;gap:1.25rem">
+        <div class="card">
+          <h3 class="section-title">📊 Your Statistics</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+            <div class="card" style="text-align:center;padding:1rem;background:var(--primary-bg);border-color:rgba(71,70,229,.15)">
+              <div style="font-size:1.6rem;font-weight:900;color:var(--primary)" id="stat-quizzes">—</div>
+              <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Quizzes Taken</div>
+            </div>
+            <div class="card" style="text-align:center;padding:1rem;background:var(--secondary-bg);border-color:rgba(6,182,212,.15)">
+              <div style="font-size:1.6rem;font-weight:900;color:var(--secondary)" id="stat-avg">—</div>
+              <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Avg Score</div>
+            </div>
+            <div class="card" style="text-align:center;padding:1rem;background:var(--accent-bg);border-color:rgba(34,197,94,.15)">
+              <div style="font-size:1.6rem;font-weight:900;color:var(--accent)" id="stat-streak2">—</div>
+              <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Day Streak</div>
+            </div>
+            <div class="card" style="text-align:center;padding:1rem;background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.15)">
+              <div style="font-size:1.6rem;font-weight:900;color:#d97706" id="stat-tutor">—</div>
+              <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;color:var(--text-muted)">Tutor Sessions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick links -->
+        <div class="card">
+          <h3 class="section-title">⚡ Quick Links</h3>
+          <div style="display:flex;flex-direction:column;gap:.5rem">
+            <a href="analytics.html" class="btn btn-secondary" style="justify-content:flex-start;gap:.6rem"><span class="material-symbols-outlined">insights</span>View Analytics</a>
+            <a href="assessment.html" class="btn btn-secondary" style="justify-content:flex-start;gap:.6rem"><span class="material-symbols-outlined">quiz</span>Take a Quiz</a>
+            <a href="content-gen.html" class="btn btn-secondary" style="justify-content:flex-start;gap:.6rem"><span class="material-symbols-outlined">auto_fix_high</span>Generate Content</a>
+            <a href="leaderboard.html" class="btn btn-secondary" style="justify-content:flex-start;gap:.6rem"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Edit form -->
+      <div class="card">
+        <h3 class="section-title">✏️ Edit Profile</h3>
+        <div class="edit-field">
+          <label class="input-label">Display Name</label>
+          <input id="edit-name" type="text" class="input-field" placeholder="Your name" maxlength="80"/>
+        </div>
+        <div class="edit-field">
+          <label class="input-label">Email Address</label>
+          <input id="edit-email" type="email" class="input-field" placeholder="Email" disabled style="opacity:.6;cursor:not-allowed"/>
+          <span style="font-size:.7rem;color:var(--text-light)">Email cannot be changed</span>
+        </div>
+        <div class="edit-field">
+          <label class="input-label">Bio <span style="color:var(--text-light)">(max 300 chars)</span></label>
+          <textarea id="edit-bio" class="input-field" rows="3" placeholder="Tell others about yourself..." maxlength="300" style="resize:vertical"></textarea>
+        </div>
+        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+          <button id="save-btn" onclick="saveProfile()" class="btn btn-primary" style="gap:.4rem">
+            <span class="material-symbols-outlined" style="font-size:1rem">save</span>Save Changes
+          </button>
+          <button onclick="resetForm()" class="btn btn-ghost">Cancel</button>
+        </div>
+        <div id="save-msg" style="display:none;margin-top:.75rem;padding:.65rem 1rem;border-radius:var(--radius-md);font-size:.85rem;font-weight:600"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/api.js"></script><script src="js/features.js"></script>
+<script>
+const AVATAR_COLORS = ['#4746E5','#06B6D4','#22C55E','#F59E0B','#EF4444','#8B5CF6','#EC4899','#0EA5E9','#14B8A6','#F97316'];
+let profileData = null;
+
+// Build color swatches
+const swatchWrap = document.querySelector('#color-picker-wrap div');
+AVATAR_COLORS.forEach(c => {
+  const s = document.createElement('div');
+  s.className = 'color-swatch';
+  s.style.background = c;
+  s.title = c;
+  s.onclick = () => pickColor(c);
+  swatchWrap.appendChild(s);
+});
+
+(async () => {
+  const user = await Auth.requireAuth(); if(!user) return;
+  initMobileSidebar(); populateUserHeader();
+  document.getElementById('user-avatar').textContent = user.name[0];
+
+  try {
+    const p = await API.get('/api/profile');
+    profileData = p;
+    renderProfile(p);
+  } catch(e) {
+    console.error(e);
+  }
+})();
+
+function renderProfile(p) {
+  document.getElementById('profile-name').textContent  = p.name;
+  document.getElementById('profile-email').textContent = p.email;
+  document.getElementById('profile-bio').textContent   = p.bio || 'No bio yet — click Edit Profile to add one.';
+  document.getElementById('profile-level').textContent = '⚡ ' + p.level;
+  document.getElementById('profile-streak').textContent= '🔥 ' + p.streak + ' Day Streak';
+  document.getElementById('profile-joined').textContent= p.joined;
+  document.getElementById('profile-xp').textContent   = p.xp.toLocaleString() + ' XP';
+  document.getElementById('stat-quizzes').textContent  = p.total_quizzes;
+  document.getElementById('stat-avg').textContent      = p.avg_score + '%';
+  document.getElementById('stat-streak2').textContent  = p.streak;
+  document.getElementById('stat-tutor').textContent    = p.tutor_sessions;
+  document.getElementById('edit-name').value  = p.name;
+  document.getElementById('edit-email').value = p.email;
+  document.getElementById('edit-bio').value   = p.bio || '';
+
+  // Avatar
+  const color = p.avatar_color || '#4746E5';
+  const avatar = document.getElementById('avatar-display');
+  avatar.style.background = color;
+  avatar.textContent = p.name[0].toUpperCase();
+
+  // XP bar (simulate % within current level bracket)
+  const xpInLevel = p.xp % 1000;
+  setTimeout(() => { document.getElementById('xp-bar').style.width = (xpInLevel / 10) + '%'; }, 200);
+
+  // Mark active swatch
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.classList.toggle('active', s.title === color);
+  });
+}
+
+function pickColor(c) {
+  document.getElementById('avatar-display').style.background = c;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s.title === c));
+}
+
+async function saveProfile() {
+  const btn = document.getElementById('save-btn');
+  const msg = document.getElementById('save-msg');
+  const name = document.getElementById('edit-name').value.trim();
+  const bio  = document.getElementById('edit-bio').value;
+  const avatarColor = document.getElementById('avatar-display').style.background;
+  if (!name) { showMsg('Name cannot be empty', false); return; }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await API.put('/api/profile', { name, bio, avatar_color: avatarColor });
+    profileData.name  = name;
+    profileData.bio   = bio;
+    profileData.avatar_color = avatarColor;
+    renderProfile(profileData);
+    showMsg('✓ Profile saved successfully!', true);
+    document.getElementById('color-picker-wrap').classList.add('hidden');
+  } catch(e) {
+    showMsg('Error: ' + (e.message || 'Save failed'), false);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:1rem">save</span>Save Changes';
+  }
+}
+
+function showMsg(text, ok) {
+  const el = document.getElementById('save-msg');
+  el.style.display = 'block';
+  el.style.background = ok ? 'rgba(34,197,94,.08)' : 'rgba(239,68,68,.08)';
+  el.style.color      = ok ? '#16a34a' : '#dc2626';
+  el.style.border     = `1px solid ${ok ? 'rgba(34,197,94,.25)' : 'rgba(239,68,68,.25)'}`;
+  el.textContent = text;
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+
+function resetForm() {
+  if(profileData) { document.getElementById('edit-name').value = profileData.name; document.getElementById('edit-bio').value = profileData.bio || ''; }
+  document.getElementById('save-msg').style.display = 'none';
+}
+</script>
+</body>
+</html>

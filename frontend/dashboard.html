@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Dashboard - GENAI EDUCANTION ENGINE</title>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .welcome-section{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.5rem;margin-bottom:2rem}
+  .quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+  .grid-2{display:grid;grid-template-columns:2fr 1fr;gap:1.5rem}
+  .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.25rem}
+  .continue-card{position:relative;overflow:hidden}
+  .continue-card .bg-icon{position:absolute;top:1rem;right:1rem;font-size:7rem;opacity:.05;pointer-events:none;color:var(--primary)}
+  .bar-chart{display:flex;align-items:flex-end;gap:4px;height:100px}
+  .bar{border-radius:4px 4px 0 0;transition:height .5s ease;min-height:4px}
+  .recommendation-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+  .chip{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;border-radius:var(--radius-full);font-size:.75rem;font-weight:600;cursor:pointer;border:1px solid}
+  .floating-chat{position:fixed;bottom:2rem;right:2rem;z-index:100}
+  .chat-fab{width:3.5rem;height:3.5rem;border-radius:50%;background:var(--primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(71,70,229,.35);transition:transform .2s}
+  .chat-fab:hover{transform:scale(1.1)}
+  .fab-tooltip{position:absolute;right:4.25rem;top:50%;transform:translateY(-50%);background:var(--surface);border:1px solid var(--border);box-shadow:var(--shadow-md);padding:.4rem .85rem;border-radius:.5rem;font-size:.8rem;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;color:var(--text)}
+  .chat-fab:hover+.fab-tooltip{opacity:1}
+  /* ── Content Generation Engine tabs ── */
+  .cge-tab{
+    display:inline-flex;align-items:center;gap:.4rem;
+    padding:.5rem 1rem;border-radius:var(--radius-md);
+    font-size:.8rem;font-weight:600;cursor:pointer;
+    border:1.5px solid var(--border);background:var(--surface);
+    color:var(--text-muted);transition:all .2s;
+  }
+  .cge-tab:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-bg);}
+  .cge-tab.active{border-color:var(--primary);color:var(--primary);background:var(--primary-bg);box-shadow:0 2px 8px rgba(71,70,229,.15);}
+  /* ── CGE loading shimmer ── */
+  @keyframes cge-shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+  .cge-loading{
+    background:linear-gradient(90deg,var(--surface-low) 25%,var(--surface-high) 50%,var(--surface-low) 75%);
+    background-size:400px 100%;animation:cge-shimmer 1.4s infinite;
+    border-radius:var(--radius-md);height:320px;
+  }
+  @media(max-width:900px){.grid-2{grid-template-columns:1fr}.quick-stats{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:640px){.quick-stats{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <img src="img/logo.png" alt="Logo">
+    <div class="brand-text">
+      <h1>GENAI EDUCANTION ENGINE</h1>
+      <p>AI-Powered Mastery</p>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-page="dashboard" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+    <a class="nav-item" data-page="learning-path" href="learning-path.html"><span class="material-symbols-outlined">route</span>Learning Path</a>
+    <a class="nav-item" data-page="content-hub" href="content-hub.html"><span class="material-symbols-outlined">auto_awesome</span>Content Hub</a>
+    <a class="nav-item" data-page="flashcards" href="flashcards.html"><span class="material-symbols-outlined">style</span>Flashcards</a>
+    <a class="nav-item" data-page="assessment" href="assessment.html"><span class="material-symbols-outlined">quiz</span>Assessments</a>
+    <a class="nav-item" data-page="analytics" href="analytics.html"><span class="material-symbols-outlined">insights</span>Analytics</a>
+    <a class="nav-item" data-page="ai-tutor" href="ai-tutor.html"><span class="material-symbols-outlined">smart_toy</span>AI Tutor</a>
+    <a class="nav-item" data-page="content-gen" href="content-gen.html"><span class="material-symbols-outlined">auto_fix_high</span>Content Gen</a>
+    <a class="nav-item" data-page="mindmap" href="mindmap.html"><span class="material-symbols-outlined">account_tree</span>Mind Map</a>
+    <a class="nav-item" data-page="planner" href="planner.html"><span class="material-symbols-outlined">calendar_month</span>Study Planner</a>
+    <a class="nav-item" data-page="library" href="library.html"><span class="material-symbols-outlined">local_library</span>My Library</a>
+    <a class="nav-item" data-page="achievements" href="achievements.html"><span class="material-symbols-outlined">military_tech</span>Achievements</a>
+    <a class="nav-item" data-page="leaderboard" href="leaderboard.html"><span class="material-symbols-outlined">emoji_events</span>Leaderboard</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-item" href="profile.html"><span class="material-symbols-outlined">person</span>Profile</a>
+    <button class="nav-item" data-action="logout" style="width:100%;border:none;background:none;cursor:pointer"><span class="material-symbols-outlined">logout</span>Sign Out</button>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:1rem">
+      <button id="menu-btn" style="background:none;border:none;color:var(--text-muted);cursor:pointer;display:none" class="material-symbols-outlined">menu</button>
+    </div>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <span id="user-xp" class="badge badge-blue" style="font-size:.75rem"></span>
+      <div style="width:2rem;height:2rem;border-radius:50%;background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#fff" id="user-avatar">A</div>
+    </div>
+
+
+      <button class="theme-toggle" id="theme-toggle-btn" onclick="Theme.toggle()" title="Toggle dark mode"><span class="material-symbols-outlined" style="font-size:1.1rem">dark_mode</span></button>
+  </header>
+
+  <div class="page-content">
+    <!-- Welcome -->
+    <div class="welcome-section">
+      <div>
+        <p style="color:var(--primary);font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.35rem">GOOD MORNING, <span id="user-display-name">—</span></p>
+        <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:.35rem;color:var(--text)">Welcome back to your learning hub</h2>
+        <p class="muted" style="font-size:.9rem" id="dash-subtitle">Loading your progress...</p>
+      </div>
+      <div class="quick-stats" id="quick-stats">
+        <div class="card stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.12)"><span class="material-symbols-outlined" style="color:#d97706;font-size:1.2rem">local_fire_department</span></div><div class="stat-value" id="stat-streak">—</div><div class="stat-label">Streak</div></div>
+        <div class="card stat-card"><div class="stat-icon" style="background:rgba(71,70,229,.10)"><span class="material-symbols-outlined" style="color:#4746E5;font-size:1.2rem">bolt</span></div><div class="stat-value" id="stat-xp">—</div><div class="stat-label">XP Earned</div></div>
+        <div class="card stat-card"><div class="stat-icon" style="background:rgba(6,182,212,.10)"><span class="material-symbols-outlined" style="color:#06B6D4;font-size:1.2rem">grade</span></div><div class="stat-value" id="stat-level">—</div><div class="stat-label">Level</div></div>
+      </div>
+    </div>
+
+    <!-- Active course + chart -->
+    <div class="grid-2" style="margin-bottom:2rem">
+      <div class="card continue-card glass">
+        <div class="bg-icon material-symbols-outlined">school</div>
+        <div style="position:relative;z-index:1">
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
+            <span class="badge badge-blue">In Progress</span>
+            <span class="muted" style="font-size:.8rem" id="last-active">Last active recently</span>
+          </div>
+          <h3 style="font-size:1.4rem;font-weight:800;margin-bottom:.5rem" id="course-title">Loading...</h3>
+          <p class="muted" style="font-size:.875rem;margin-bottom:1.5rem" id="course-desc">Continue where you left off.</p>
+          <div style="margin-bottom:1.5rem">
+            <div style="display:flex;justify-content:space-between;margin-bottom:.5rem"><span style="font-size:.85rem;font-weight:600">Progress</span><span style="font-size:.85rem;font-weight:700;color:var(--primary)" id="course-pct">0%</span></div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="course-bar" style="width:0%"></div></div>
+          </div>
+          <a href="assessment.html" class="btn btn-primary"><span class="material-symbols-outlined" style="font-size:1.1rem">play_circle</span>Resume Session</a>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+          <span style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#64748b">Quiz Scores</span>
+          <span class="badge badge-green" id="score-trend">+0%</span>
+        </div>
+        <div class="bar-chart" id="bar-chart"></div>
+        <div style="display:flex;justify-content:space-between;font-size:.65rem;color:#475569;font-weight:700;text-transform:uppercase;margin-top:.5rem" id="bar-labels"></div>
+        <hr class="divider"/>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:.8rem;color:#64748b">Current Average</span>
+          <span style="font-size:1.2rem;font-weight:800" id="avg-score">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Module Grid -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <h3 class="section-title" style="margin-bottom:0">Learning Ecosystem</h3>
+      <a href="learning-path.html" style="color:#60a5fa;font-size:.85rem;font-weight:600;text-decoration:none">View All →</a>
+    </div>
+    <div class="module-grid" id="module-grid">
+      <!-- injected by JS -->
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card" style="margin-top:1.5rem">
+      <h4 style="font-weight:700;margin-bottom:.75rem">🤖 AI Recommendations</h4>
+      <div class="recommendation-chips" id="reco-chips"></div>
+        <div style="margin-top:1.25rem;padding:1rem;background:var(--primary-bg);border-radius:var(--radius-md);border:1px solid rgba(71,70,229,.12);display:flex;align-items:center;gap:.75rem">
+          <div style="width:2.25rem;height:2.25rem;border-radius:50%;background:rgba(71,70,229,.12);display:flex;align-items:center;justify-content:center"><span class="material-symbols-outlined" style="color:#4746E5;font-size:1.1rem">lightbulb</span></div>
+          <p style="font-size:.85rem;color:var(--text-muted);font-style:italic" id="ai-tip">"Keep up the momentum — consistency beats intensity every time!"</p>
+        </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         4.2 CONTENT GENERATION ENGINE
+    ═══════════════════════════════════════════════════════════ -->
+    <div class="card" style="margin-top:2rem;border:1.5px solid rgba(71,70,229,.18);overflow:hidden" id="content-gen-section">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem">
+        <div style="display:flex;align-items:center;gap:.85rem">
+          <div style="width:2.75rem;height:2.75rem;border-radius:var(--radius-md);background:linear-gradient(135deg,#4746E5,#06B6D4);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span class="material-symbols-outlined" style="color:#fff;font-size:1.35rem">auto_awesome</span>
+          </div>
+          <div>
+            <h3 style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:.1rem">Content Generation Engine</h3>
+            <p style="font-size:.75rem;color:var(--text-muted)">Auto-generate study material instantly from any topic</p>
+          </div>
+        </div>
+        <span class="badge badge-blue" style="font-size:.7rem;padding:.3rem .75rem">✦ AI-Powered</span>
+      </div>
+
+      <!-- Type Tabs -->
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.25rem" id="cge-tabs">
+        <button class="cge-tab active" data-type="notes"         onclick="selectTab(this,'notes')">
+          <span class="material-symbols-outlined" style="font-size:.95rem">description</span>Notes
+        </button>
+        <button class="cge-tab" data-type="summary"      onclick="selectTab(this,'summary')">
+          <span class="material-symbols-outlined" style="font-size:.95rem">summarize</span>Summaries
+        </button>
+        <button class="cge-tab" data-type="examples"     onclick="selectTab(this,'examples')">
+          <span class="material-symbols-outlined" style="font-size:.95rem">lightbulb</span>Examples
+        </button>
+        <button class="cge-tab" data-type="case_study"   onclick="selectTab(this,'case_study')">
+          <span class="material-symbols-outlined" style="font-size:.95rem">cases</span>Case Studies
+        </button>
+      </div>
+
+      <!-- Input row -->
+      <div style="display:flex;gap:.75rem;align-items:stretch;margin-bottom:1.25rem">
+        <div style="flex:1;position:relative">
+          <span class="material-symbols-outlined" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text-light);pointer-events:none">search</span>
+          <input id="cge-topic"
+            type="text"
+            class="input-field"
+            placeholder="Enter a topic  e.g. Quantum Mechanics, Machine Learning, Newton's Laws…"
+            style="padding-left:2.5rem"
+            onkeydown="if(event.key==='Enter')generateContent()"
+          />
+        </div>
+        <button id="cge-btn" onclick="generateContent()" class="btn btn-primary" style="gap:.4rem;white-space:nowrap;min-width:130px">
+          <span class="material-symbols-outlined" style="font-size:1rem">auto_awesome</span>
+          <span id="cge-btn-text">Generate</span>
+        </button>
+      </div>
+
+      <!-- Quick topic chips -->
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem" id="cge-suggestions">
+        <span style="font-size:.72rem;color:var(--text-light);font-weight:600;align-self:center;margin-right:.25rem">Try:</span>
+      </div>
+
+      <!-- Output panel -->
+      <div id="cge-output-wrap" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <span id="cge-out-icon" class="material-symbols-outlined" style="font-size:1rem;color:var(--primary)">description</span>
+            <span id="cge-out-label" style="font-size:.8rem;font-weight:700;color:var(--text)">Notes</span>
+            <span id="cge-out-topic" class="badge badge-cyan" style="font-size:.65rem"></span>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button onclick="copyContent()" class="btn btn-secondary" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem">
+              <span class="material-symbols-outlined" style="font-size:.9rem">content_copy</span>Copy
+            </button>
+            <button onclick="downloadContent()" class="btn btn-secondary" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem">
+              <span class="material-symbols-outlined" style="font-size:.9rem">download</span>Save
+            </button>
+            <button onclick="generateContent()" class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem">
+              <span class="material-symbols-outlined" style="font-size:.9rem">refresh</span>Regenerate
+            </button>
+          </div>
+        </div>
+
+        <!-- Content box -->
+        <div id="cge-output"
+          style="background:var(--surface-low);border:1px solid var(--border);border-radius:var(--radius-md);
+                 padding:1.5rem;font-size:.875rem;line-height:1.85;color:var(--text);
+                 white-space:pre-wrap;font-family:'Inter',monospace;
+                 max-height:480px;overflow-y:auto;position:relative">
+        </div>
+
+        <!-- Footer stats -->
+        <div style="display:flex;gap:1.5rem;margin-top:.75rem;flex-wrap:wrap">
+          <span style="font-size:.72rem;color:var(--text-light);display:flex;align-items:center;gap:.3rem">
+            <span class="material-symbols-outlined" style="font-size:.85rem">schedule</span>
+            Generated in <strong id="cge-time" style="color:var(--primary)">—</strong>
+          </span>
+          <span style="font-size:.72rem;color:var(--text-light);display:flex;align-items:center;gap:.3rem">
+            <span class="material-symbols-outlined" style="font-size:.85rem">text_fields</span>
+            <strong id="cge-words" style="color:var(--primary)">—</strong> words
+          </span>
+          <span style="font-size:.72rem;color:var(--text-light);display:flex;align-items:center;gap:.3rem">
+            <span class="material-symbols-outlined" style="font-size:.85rem">timer</span>
+            ~<strong id="cge-read" style="color:var(--primary)">—</strong> min read
+          </span>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="cge-empty" style="text-align:center;padding:2.5rem 1rem">
+        <div style="width:3.5rem;height:3.5rem;border-radius:50%;background:var(--primary-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem">
+          <span class="material-symbols-outlined" style="font-size:1.75rem;color:var(--primary)">edit_document</span>
+        </div>
+        <p style="font-weight:700;color:var(--text);margin-bottom:.35rem">Ready to generate</p>
+        <p style="font-size:.8rem;color:var(--text-muted)">Choose a content type, enter a topic, and click Generate</p>
+      </div>
+
+    </div><!-- /content-gen-section -->
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div><!-- root -->
+
+<!-- Floating chat -->
+<div class="floating-chat">
+  <button class="chat-fab" onclick="window.location.href='ai-tutor.html'">
+    <span class="material-symbols-outlined" style="color:#fff;font-size:1.5rem">smart_toy</span>
+    <span style="position:absolute;top:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#22C55E;border:2px solid var(--surface)"></span>
+  </button>
+  <div class="fab-tooltip">Ask GENAI EDUCANTION ENGINE</div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js?v=2"></script><script src="js/features.js"></script>
+<script>
+const MODULES = [
+  {title:"Learning Path",desc:"Dynamic roadmap tailored to your goals.",icon:"route",color:"blue",href:"learning-path.html"},
+  {title:"Content Hub",desc:"AI-curated interactive study materials.",icon:"auto_awesome",color:"violet",href:"content-hub.html"},
+  {title:"Assessments",desc:"Adaptive quizzes and mock exams.",icon:"quiz",color:"emerald",href:"assessment.html"},
+  {title:"AI Tutor",desc:"24/7 personal tutor for instant guidance.",icon:"smart_toy",color:"blue",href:"ai-tutor.html",highlight:true},
+  {title:"Analytics",desc:"Deep dive into your performance.",icon:"insights",color:"amber",href:"analytics.html"},
+  {title:"Leaderboard",desc:"Compete and climb the global ranks.",icon:"emoji_events",color:"orange",href:"leaderboard.html"},
+];
+const RECOS = [
+  {label:"Review: Calculus III",icon:"auto_awesome",cls:"badge-purple"},
+  {label:"Based on last quiz",icon:"history",cls:"badge-blue"},
+  {label:"New challenge available",icon:"trending_up",cls:"badge-green"},
+];
+
+(async()=>{
+  const [user, d] = await Promise.all([
+    Auth.requireAuth(),
+    API.get('/api/dashboard').catch(e => { console.error(e); return null; })
+  ]);
+  
+  if(!user) return;
+  
+  document.getElementById('user-display-name').textContent = user.name.split(' ')[0].toUpperCase();
+  document.getElementById('user-avatar').textContent = user.name[0];
+  initMobileSidebar(); populateUserHeader();
+
+  if (d) {
+    document.getElementById('stat-streak').textContent = d.user.streak + ' Days';
+    document.getElementById('stat-xp').textContent = d.user.xp.toLocaleString();
+    document.getElementById('stat-level').textContent = d.user.level;
+    document.getElementById('user-xp').textContent = d.user.xp.toLocaleString() + ' XP';
+
+    if(d.active_course) {
+      document.getElementById('course-title').textContent = d.active_course.title;
+      document.getElementById('course-desc').textContent = 'Topic: ' + d.active_course.topic + ' · ' + d.active_course.completed_units + '/' + d.active_course.total_units + ' units';
+      document.getElementById('course-pct').textContent = d.active_course.progress + '%';
+      document.getElementById('last-active').textContent = 'Last active: ' + d.active_course.last_active;
+      setTimeout(()=>{ document.getElementById('course-bar').style.width = d.active_course.progress + '%'; }, 100);
+    } else {
+      document.getElementById('course-title').textContent = "No active courses";
+      document.getElementById('course-desc').textContent = "Ready to start learning? Explore the content hub.";
+      document.getElementById('course-pct').textContent = "0%";
+      document.getElementById('last-active').textContent = "New Student";
+      document.querySelector('.continue-card .btn').textContent = "Start Learning";
+      document.querySelector('.continue-card .btn').href = "learning-path.html";
+    }
+
+    // Bar chart
+    const scores = d.quiz_scores.length ? d.quiz_scores : [{day:'M',score:70},{day:'T',score:75},{day:'W',score:68},{day:'T',score:82},{day:'F',score:78},{day:'S',score:85},{day:'S',score:91}];
+    const maxS = Math.max(...scores.map(s=>s.score));
+    const chart = document.getElementById('bar-chart');
+    const labels = document.getElementById('bar-labels');
+    scores.forEach((s,i)=>{
+      const bar = document.createElement('div');
+      bar.className='bar'; bar.style.cssText=`flex:1;background:${i===scores.length-1?'#4746E5':'rgba(71,70,229,.25)'};height:${Math.round((s.score/maxS)*100)}px`;
+      chart.appendChild(bar);
+      const lbl=document.createElement('span'); lbl.textContent=s.day; labels.appendChild(lbl);
+    });
+    document.getElementById('avg-score').textContent = d.avg_score + '%';
+    document.getElementById('dash-subtitle').textContent = `You've completed ${d.weekly_goal_pct}% of your weekly goals. Keep it up!`;
+  }
+
+  // Modules
+  const grid = document.getElementById('module-grid');
+  MODULES.forEach(m=>{
+    const c = courseColor(m.color);
+  grid.innerHTML += `<a href="${m.href}" class="card" style="text-decoration:none;display:block;border:1px solid ${m.highlight?'rgba(71,70,229,.25)':'var(--border)'};transition:all .25s" onmouseover="this.style.borderColor='${c.border}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='${m.highlight?'rgba(71,70,229,.25)':'var(--border)'}';this.style.transform='none'">
+      <div style="width:2.75rem;height:2.75rem;border-radius:.75rem;background:${c.bg};display:flex;align-items:center;justify-content:center;margin-bottom:1rem"><span class="material-symbols-outlined" style="color:${c.text}">${m.icon}</span></div>
+      <h4 style="font-weight:700;margin-bottom:.35rem;color:var(--text)">${m.title}</h4>
+      <p style="font-size:.8rem;color:var(--text-muted);line-height:1.5;margin-bottom:1rem">${m.desc}</p>
+      <div style="font-size:.8rem;font-weight:600;color:${c.text}">Launch →</div>
+    </a>`;
+  });
+
+  // Recommendation chips
+  const chips = document.getElementById('reco-chips');
+  RECOS.forEach(r=>{
+    chips.innerHTML += `<div class="chip ${r.cls}"><span class="material-symbols-outlined" style="font-size:.85rem">${r.icon}</span>${r.label}</div>`;
+  });
+})();
+
+// ══════════════════════════════════════════════════════════════════
+//  4.2 CONTENT GENERATION ENGINE — JavaScript
+// ══════════════════════════════════════════════════════════════════
+
+const CGE_TYPES = {
+  notes:      { label:'Notes',       icon:'description', color:'#4746E5' },
+  summary:    { label:'Summary',     icon:'summarize',   color:'#06B6D4' },
+  examples:   { label:'Examples',    icon:'lightbulb',   color:'#22C55E' },
+  case_study: { label:'Case Study',  icon:'cases',       color:'#F59E0B' },
+};
+
+const CGE_SUGGESTIONS = [
+  'Quantum Mechanics','Machine Learning','Newton\'s Laws',
+  'Photosynthesis','World War II','Python Programming',
+  'Calculus','Climate Change','DNA & Genetics','Blockchain'
+];
+
+let cgeCurrentType = 'notes';
+let cgeLastContent = '';
+let cgeLastTopic   = '';
+
+// Build suggestion chips
+(function buildSuggestions(){
+  const wrap = document.getElementById('cge-suggestions');
+  CGE_SUGGESTIONS.forEach(s=>{
+    const chip = document.createElement('button');
+    chip.textContent = s;
+    chip.className = 'chip badge-blue';
+    chip.style.cssText = 'cursor:pointer;font-size:.7rem;';
+    chip.onclick = ()=>{ document.getElementById('cge-topic').value = s; generateContent(); };
+    wrap.appendChild(chip);
+  });
+})();
+
+function selectTab(el, type){
+  document.querySelectorAll('.cge-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  cgeCurrentType = type;
+  // Update output label if content already shown
+  if(cgeLastContent){
+    const meta = CGE_TYPES[type];
+    document.getElementById('cge-out-icon').textContent  = meta.icon;
+    document.getElementById('cge-out-label').textContent = meta.label;
+  }
+}
+
+async function generateContent(){
+  const topic = document.getElementById('cge-topic').value.trim();
+  if(!topic){ showToast('Please enter a topic first','⚠'); return; }
+
+  const btn     = document.getElementById('cge-btn');
+  const btnTxt  = document.getElementById('cge-btn-text');
+  const output  = document.getElementById('cge-output');
+  const wrap    = document.getElementById('cge-output-wrap');
+  const empty   = document.getElementById('cge-empty');
+  const meta    = CGE_TYPES[cgeCurrentType];
+
+  // Loading state
+  btn.disabled = true;
+  btnTxt.textContent = 'Generating…';
+  empty.style.display = 'none';
+  wrap.style.display  = 'none';
+  output.innerHTML = '<div class="cge-loading"></div>';
+  wrap.style.display = 'block';
+
+  const t0 = Date.now();
+  try {
+    const res = await fetch('/api/content/generate_stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({topic, type: cgeCurrentType})
+    });
+
+    document.getElementById('cge-out-icon').textContent  = meta.icon;
+    document.getElementById('cge-out-icon').style.color  = meta.color;
+    document.getElementById('cge-out-label').textContent = meta.label;
+    document.getElementById('cge-out-topic').textContent = topic;
+    
+    output.textContent = '';
+    output.style.color = 'var(--text)';
+    let generatedText = '';
+    
+    await Streaming.consume(res, {
+      onToken: (token) => {
+        generatedText += token;
+        output.textContent += token;
+        output.scrollTop = output.scrollHeight;
+      },
+      onDone: () => {
+        const elapsed = ((Date.now() - t0) / 1000).toFixed(2);
+        cgeLastContent = generatedText;
+        cgeLastTopic   = topic;
+
+        const words = generatedText.trim().split(/\s+/).length;
+        document.getElementById('cge-time').textContent  = elapsed + 's';
+        document.getElementById('cge-words').textContent = words.toLocaleString();
+        document.getElementById('cge-read').textContent  = Math.ceil(words / 200);
+      },
+      onError: (err) => {
+        throw err;
+      }
+    });
+
+  } catch(e){
+    output.textContent = '⚠ Error: ' + (e.message || 'Failed to generate. Please try again.');
+    output.style.color = 'var(--error)';
+  } finally {
+    btn.disabled = false;
+    btnTxt.textContent = 'Generate';
+  }
+}
+
+function typewriterRender(el, text){
+  el.textContent = '';
+  el.style.color = 'var(--text)';
+  // Chunk render (fast but smooth)
+  const chunkSize = 12;
+  let i = 0;
+  const step = ()=>{
+    if(i < text.length){
+      el.textContent += text.slice(i, i + chunkSize);
+      i += chunkSize;
+      el.scrollTop = el.scrollHeight;
+      requestAnimationFrame(step);
+    }
+  };
+  requestAnimationFrame(step);
+}
+
+function copyContent(){
+  if(!cgeLastContent){ showToast('Nothing to copy yet','⚠'); return; }
+  navigator.clipboard.writeText(cgeLastContent)
+    .then(()=> showToast('Copied to clipboard ✓','✅'))
+    .catch(()=>{
+      // Fallback
+      const ta = document.createElement('textarea');
+      ta.value = cgeLastContent;
+      document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Copied to clipboard ✓','✅');
+    });
+}
+
+function downloadContent(){
+  if(!cgeLastContent){ showToast('Nothing to download yet','⚠'); return; }
+  const meta     = CGE_TYPES[cgeCurrentType];
+  const filename = `${meta.label}_${cgeLastTopic.replace(/\s+/g,'_')}.txt`;
+  const blob     = new Blob([cgeLastContent], { type:'text/plain' });
+  const url      = URL.createObjectURL(blob);
+  const a        = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click(); URL.revokeObjectURL(url);
+  showToast(`Saved as ${filename}`,'💾');
+}
+
+function showToast(msg, icon='✅'){
+  let t = document.querySelector('.toast');
+  if(!t){ t = document.createElement('div'); t.className='toast'; document.body.appendChild(t); }
+  t.innerHTML = `<span style="font-size:1.1rem">${icon}</span><span style="font-size:.875rem;font-weight:500">${msg}</span>`;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(()=>t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
