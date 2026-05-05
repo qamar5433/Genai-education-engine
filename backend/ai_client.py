@@ -8,11 +8,13 @@ from groq import Groq
 
 # ── API Key ────────────────────────────────────────────────────────────────────
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+client = None
 
-if not GROQ_API_KEY:
-    print("⚠ WARNING: GROQ_API_KEY not found in environment variables.")
+if GROQ_API_KEY:
+    client = Groq(api_key=GROQ_API_KEY)
+else:
+    print("! WARNING: GROQ_API_KEY not found. AI features will be disabled.")
 
-client = Groq(api_key=GROQ_API_KEY)
 DEFAULT_MODEL = "llama-3.3-70b-versatile"
 
 # ── Mock Data Fallbacks ────────────────────────────────────────────────────────
@@ -40,6 +42,8 @@ def chat(messages: list[dict], temperature: float = 0.7, max_tokens: int = 1500)
         formatted_messages.append({"role": role, "content": m['content']})
     
     try:
+        if not client:
+            return "AI features are currently unavailable (missing API key)."
         completion = client.chat.completions.create(
             model=DEFAULT_MODEL,
             messages=formatted_messages,
@@ -48,7 +52,7 @@ def chat(messages: list[dict], temperature: float = 0.7, max_tokens: int = 1500)
         )
         return completion.choices[0].message.content.strip()
     except Exception as e:
-        print(f"⚠ Groq AI Error: {e}")
+        print(f"! Groq AI Error: {e}")
         if "rate limit" in str(e).lower() or "capacity" in str(e).lower():
             return "I'm currently in high-demand mode. How can I help you today?"
         return "I encountered a technical issue. Please try again later."
