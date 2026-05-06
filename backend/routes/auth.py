@@ -69,17 +69,15 @@ def _resend_cooldown_remaining(user: User) -> int:
 def signup():
     """
     Register a new user.
-    - If email is already registered but unverified: resend OTP.
-    - If email is already registered and verified: reject.
-    - Otherwise: create user, send OTP, require verification.
-    - If Brevo not configured: auto-verify (dev mode).
     """
-    data     = request.get_json(force=True)
-    name     = data.get("name",     "").strip()
-    email    = data.get("email",    "").strip().lower()
-    password = data.get("password", "")
+    try:
+        data     = request.get_json(force=True)
+        name     = data.get("name",     "").strip()
+        email    = data.get("email",    "").strip().lower()
+        password = data.get("password", "")
+    except Exception:
+        return jsonify({"error": "Invalid request format."}), 400
 
-    # ── Validation ──────────────────────────────────────────────────────────
     if not name or not email or not password:
         return jsonify({"error": "All fields are required."}), 400
     if len(password) < 6:
@@ -89,80 +87,69 @@ def signup():
     try:
         existing = db.query(User).filter_by(email=email).first()
 
-        # Already registered
         if existing:
             if not existing.is_verified:
-                # UPDATED: Allow updating password/name if they made a mistake during first registration
+                # Update info if they re-register before verifying (fixed potential mistake)
                 existing.name          = name
-                existing.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-
-                # Check cooldown before resending fresh OTP
+                existing.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+                
                 wait = _resend_cooldown_remaining(existing)
-                if wait > 0:
-                    return jsonify({
-                        "error": f"Please wait {wait} seconds before requesting another code.",
-                        "cooldown_remaining": wait
-                    }), 429
+                if wait == 0:
+                    otp = _generate_otp()
+                    existing.otp_code       = otp
+                    existing.otp_expires_at = _otp_expiry()
+                    existing.otp_resend_at  = datetime.utcnow()
+                    db.commit()
+                    send_otp_email_sync(email, otp)
+                else:
+                    db.commit() # Save name/password updates even if we skip OTP resend
 
-                # Resend fresh OTP
-                otp = _generate_otp()
-                existing.otp_code       = otp
-                existing.otp_expires_at = _otp_expiry()
-                existing.otp_resend_at  = datetime.utcnow()
-                db.commit()
-
-                success, _ = send_otp_email_sync(email, otp)
-                response = {
-                    "message": "Account already exists but was not verified. Information updated and a new code sent.",
+                return jsonify({
+                    "message": "Account already exists but was unverified. Information updated and code sent.",
                     "requires_verification": True,
                     "email": email,
-                }
-                if not success:
-                    response["dev_otp"] = otp   # show in response if email fails
-                return jsonify(response), 200
-
+                }), 200
+            
             return jsonify({"error": "This email is already registered. Please log in."}), 409
 
-        # ── New user ─────────────────────────────────────────────────────────
-        pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-        otp     = _generate_otp()
+        # Create new user
+        pw_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         email_on = is_email_enabled()
-
+        
         user = User(
             name=name,
             email=email,
             password_hash=pw_hash,
-            is_verified=not email_on,           # auto-verify when email not configured
-            otp_code=otp if email_on else None,
+            is_verified=not email_on,
+            otp_code=_generate_otp() if email_on else None,
             otp_expires_at=_otp_expiry() if email_on else None,
-            otp_resend_at=datetime.utcnow() if email_on else None,
+            otp_resend_at=datetime.utcnow() if email_on else None
         )
         db.add(user)
         db.commit()
         db.refresh(user)
 
-        # Dev mode (no Brevo configured) → log in immediately
         if not email_on:
             session["user_id"]   = user.id
             session["user_name"] = user.name
             return jsonify({
-                "message": "Account created. (Email verification disabled — Brevo not configured)",
+                "message": "Welcome! Registration successful.",
                 "requires_verification": False,
-                "email": email,
-                "user": {"id": user.id, "name": user.name, "email": user.email},
+                "user": {"id": user.id, "name": user.name, "email": user.email}
             }), 201
 
-        # Send OTP synchronously to ensure it's dispatched before redirecting the user
-        success, err_msg = send_otp_email_sync(email, otp)
-        if not success:
-             print(f"[AUTH] Signup email FAILED for {email}: {err_msg}")
-
+        # Send OTP
+        send_otp_email_sync(email, user.otp_code)
         return jsonify({
-            "message": "Account created. Please verify your email.",
+            "message": "Registration successful. Please check your email for the verification code.",
             "requires_verification": True,
-            "email": email,
+            "email": email
         }), 201
 
+    except Exception as e:
+        db.rollback()
+        print(f"[AUTH] Signup ERROR: {str(e)}")
+        return jsonify({"error": "An internal error occurred during registration."}), 500
     finally:
         db.close()
 
@@ -173,45 +160,46 @@ def signup():
 def login():
     """
     Log in an existing user.
-    - Rejects login if email is not yet verified.
-    - Sends a fresh OTP to unverified users.
     """
-    data     = request.get_json(force=True)
-    email    = data.get("email",    "").strip().lower()
-    password = data.get("password", "")
+    try:
+        data     = request.get_json(force=True)
+        email    = data.get("email",    "").strip().lower()
+        password = data.get("password", "")
+    except Exception:
+        return jsonify({"error": "Invalid request format."}), 400
 
     db = SessionLocal()
     try:
         user = db.query(User).filter_by(email=email).first()
         
-        if not user:
-            print(f"[AUTH] Login failed: User not found ({email})")
-            return jsonify({"error": "Invalid email or password."}), 401
-            
-        if not bcrypt.checkpw(password.encode(), user.password_hash.encode()):
-            print(f"[AUTH] Login failed: Password mismatch for {email}")
+        # Verify user exists and password matches
+        if not user or not bcrypt.checkpw(password.encode('utf-8'), user.password_hash.encode('utf-8')):
+            print(f"[AUTH] Login failed: Invalid credentials for {email}")
             return jsonify({"error": "Invalid email or password."}), 401
 
-        # Block unverified users and send a fresh OTP
+        # Block unverified users
         if not user.is_verified:
+            # Resend OTP if cooldown is over
             wait = _resend_cooldown_remaining(user)
             if wait == 0:
-                # Safe to send a new OTP
                 otp = _generate_otp()
                 user.otp_code       = otp
                 user.otp_expires_at = _otp_expiry()
                 user.otp_resend_at  = datetime.utcnow()
                 db.commit()
                 send_otp_email_sync(email, otp)
-
+            
             return jsonify({
-                "error": "Email not verified. A verification code has been sent.",
+                "error": "Email not verified. A new verification code has been sent.",
                 "requires_verification": True,
-                "email": email,
+                "email": email
             }), 403
 
+        # Login successful
+        session.clear() # Prevent session fixation
         session["user_id"]   = user.id
         session["user_name"] = user.name
+        
         return jsonify({
             "message": "Login successful",
             "user": {
@@ -220,10 +208,13 @@ def login():
                 "email":  user.email,
                 "xp":     user.xp,
                 "streak": user.streak,
-                "level":  user.level,
-            },
+                "level":  user.level
+            }
         }), 200
 
+    except Exception as e:
+        print(f"[AUTH] Login ERROR: {str(e)}")
+        return jsonify({"error": "An internal error occurred during login."}), 500
     finally:
         db.close()
 

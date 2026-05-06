@@ -1,52 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Login - GENAI EDUCANTION ENGINE</title>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sign In - GENAI EDUCANTION ENGINE</title>
 <link rel="icon" type="image/png" href="img/logo.png"/>
-<meta name="description" content="Sign in to your GENAI EDUCANTION ENGINE account and continue your learning journey."/>
 <link rel="stylesheet" href="css/main.css"/>
-<style>
-  .auth-bg { position:fixed;inset:0;overflow:hidden;pointer-events:none; }
-  .auth-orb { position:absolute;border-radius:50%;filter:blur(100px); }
-  .auth-orb-1 { width:500px;height:500px;background:rgba(71,70,229,0.12);top:-10%;left:-10%; }
-  .auth-orb-2 { width:400px;height:400px;background:rgba(6,182,212,0.10);bottom:-5%;right:-5%; }
-  .divider-text { display:flex;align-items:center;gap:0.75rem;color:var(--text-muted);font-size:0.8rem; }
-  .divider-text::before,.divider-text::after { content:'';flex:1;height:1px;background:var(--border); }
-  .error-msg { background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:var(--radius-md);padding:0.75rem 1rem;font-size:0.85rem;color:#dc2626;margin-bottom:1rem;display:none; }
-</style>
 </head>
-<body>
-<div class="auth-bg"><div class="auth-orb auth-orb-1"></div><div class="auth-orb auth-orb-2"></div></div>
-<div class="auth-page">
-  <div class="auth-card fade-in-up">
-    <!-- Logo -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:2rem">
-      <img src="img/logo.png" alt="Logo" style="width:56px;height:56px;object-fit:contain">
-      <div style="text-align:left">
-        <a href="/" style="text-decoration:none"><span class="text-gradient" style="font-size:1.75rem;font-weight:900">GENAI EDUCANTION ENGINE</span></a>
-        <p style="color:var(--text-muted);font-size:0.875rem;margin-top:0.25rem">Welcome back. Continue your journey.</p>
+<body class="auth-page">
+<div class="auth-container">
+  <div class="auth-card glass">
+    <div class="auth-header">
+      <img src="img/logo.png" alt="Logo" class="auth-logo">
+      <h1>Welcome Back</h1>
+      <p>Sign in to continue your learning journey</p>
+    </div>
+    
+    <div id="error-msg" class="alert alert-error" style="display:none;margin-bottom:1rem"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div style="position:relative">
+          <span class="material-symbols-outlined" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text-light)">mail</span>
+          <input type="email" id="email" class="input-field" style="padding-left:2.5rem" placeholder="name@company.com" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <label for="password" style="margin-bottom:0">Password</label>
+          <a href="#" style="font-size:.75rem;color:var(--primary);font-weight:600;text-decoration:none">Forgot?</a>
+        </div>
+        <div style="position:relative">
+          <span class="material-symbols-outlined" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text-light)">lock</span>
+          <input type="password" id="password" class="input-field" style="padding-left:2.5rem" placeholder="••••••••" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1rem" id="login-btn">Sign In</button>
+    </form>
+
+    <div style="margin-top:2rem">
+      <div class="divider-text"><span>OR CONTINUE WITH</span></div>
+      <div style="display:grid;grid-template-columns:1fr;gap:.75rem;margin-top:1.5rem">
+         <button class="btn btn-secondary" style="gap:.5rem"><img src="https://www.google.com/favicon.ico" width="16" height="16"/> Google</button>
       </div>
     </div>
-    <div class="card" style="padding:2rem;box-shadow:var(--shadow-md)">
-      <div id="error-msg" class="error-msg"></div>
-      <form id="login-form">
-        <div style="margin-bottom:1.25rem">
-          <label class="input-label" for="email">Email Address</label>
-          <input id="email" type="email" class="input-field" placeholder="alex@demo.com" required/>
-        </div>
-        <div style="margin-bottom:1.75rem">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
-            <label class="input-label" for="password" style="margin-bottom:0">Password</label>
-            <a href="forgot-password.html" style="font-size:.78rem;color:#60a5fa;text-decoration:none;font-weight:500">Forgot password?</a>
-          </div>
-          <input id="password" type="password" class="input-field" placeholder="••••••••" required/>
-        </div>
-        <button id="login-btn" type="submit" class="btn btn-primary btn-full btn-lg">Sign In</button>
-      </form>
-      
-      <div class="divider-text" style="margin:1.5rem 0">or</div>
+    
+    <div style="margin-top:1.5rem">
       <div style="background:var(--primary-bg);border:1px solid rgba(71,70,229,0.15);border-radius:var(--radius-md);padding:0.9rem 1rem;font-size:0.8rem;color:var(--text-muted);text-align:center">
         🎯 Demo: <strong style="color:var(--primary)">alex@demo.com</strong> / <strong style="color:var(--primary)">password123</strong>
       </div>
@@ -56,39 +55,55 @@
     </p>
   </div>
 </div>
-<script src="js/theme.js"></script><script src="js/api.js"></script>
+<script src="js/theme.js"></script><script src="js/api.js?v=2"></script>
 <script>
   // Redirect if already logged in
   Auth.me().then(u => { if(u) window.location.href = '/dashboard.html'; });
 
-  let currentEmail = "";
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('email')) {
+    document.getElementById('email').value = params.get('email');
+  }
 
   document.getElementById('login-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const btn = document.getElementById('login-btn');
+    const btn = e.target.querySelector('button');
     const errEl = document.getElementById('error-msg');
-    btn.disabled = true; btn.textContent = 'Signing in...';
+    
+    const currentEmail = document.getElementById('email').value.trim();
+    if (!currentEmail || !document.getElementById('password').value) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in...';
     errEl.style.display = 'none';
-    currentEmail = document.getElementById('email').value.trim();
+
     try {
       await API.post('/api/auth/login', {
         email: currentEmail,
         password: document.getElementById('password').value
       });
+      
+      // Success
       window.location.href = '/dashboard.html';
     } catch(err) {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+      errEl.style.display = 'block';
+
       if (err.requires_verification) {
-        showToast("Email not verified. Redirecting to verification page…", "info");
+        errEl.textContent = 'Email not verified. Redirecting...';
         setTimeout(() => {
           window.location.href = `/verify-email.html?email=${encodeURIComponent(currentEmail)}`;
         }, 1500);
       } else if (err.status === 401) {
-        errEl.textContent = 'Invalid email or password.';
+        errEl.textContent = 'Invalid email or password. Please try again.';
       } else {
-        errEl.textContent = err.message || 'Login failed. Please try again.';
+        errEl.textContent = err.message || 'Login failed. Please try again later.';
       }
-      errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Sign In';
     }
   });
 </script>
