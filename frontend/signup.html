@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="card glass" style="padding:2rem">
-      <div id="error-msg" class="error-msg"></div>
+      <p id="error-msg" class="error-msg"></p>
       <form id="signup-form">
         <div style="margin-bottom:1.1rem">
           <label class="input-label">Full Name</label>
@@ -45,17 +45,6 @@
         </div>
         <button id="signup-btn" type="submit" class="btn btn-primary btn-full btn-lg">Create Free Account</button>
       </form>
-        <div id="otp-section" style="display:none;">
-          <h3 style="margin-bottom:1rem;text-align:center;">Verify Your Email</h3>
-          <p style="font-size:0.875rem;color:var(--on-surface-variant);text-align:center;margin-bottom:1.5rem">We sent a 6-digit code to <span id="otp-email-display" style="font-weight:700;color:var(--text)"></span>.</p>
-          <div style="margin-bottom:1.5rem">
-            <input id="otp-code" type="text" class="input-field" placeholder="Enter 6-digit code" style="text-align:center;letter-spacing:0.5rem;font-size:1.25rem;font-weight:700" maxlength="6"/>
-          </div>
-          <button id="verify-btn" type="button" class="btn btn-primary btn-full btn-lg">Verify Email</button>
-          <div style="text-align:center;margin-top:1rem">
-            <button id="resend-btn" type="button" style="background:none;border:none;color:#60a5fa;cursor:pointer;font-size:0.875rem">Resend Code</button>
-          </div>
-        </div>
 
       <p style="font-size:.75rem;color:var(--on-surface-variant);text-align:center;margin-top:1rem">By signing up you agree to our <a href="#" style="color:#60a5fa">Terms</a> and <a href="#" style="color:#60a5fa">Privacy Policy</a>.</p>
     </div>
@@ -109,36 +98,6 @@
     }catch(err){
       errEl.textContent=err.message||'Signup failed.';errEl.style.display='block';
       btn.disabled=false;btn.textContent='Create Free Account';
-    }
-  });
-
-  document.getElementById('verify-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('verify-btn');
-    const otp = document.getElementById('otp-code').value.trim();
-    const errEl = document.getElementById('error-msg');
-    if (!otp) return;
-
-    btn.disabled = true; btn.textContent = 'Verifying...'; errEl.style.display = 'none';
-    try {
-      await API.post('/api/auth/verify-otp', { email: currentEmail, otp: otp });
-      showToast("Successful verification done!", "success");
-      setTimeout(() => { window.location.href = '/dashboard.html'; }, 400);
-    } catch(err) {
-      errEl.textContent = err.message || 'Verification failed.'; errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = 'Verify Email';
-    }
-  });
-
-  document.getElementById('resend-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('resend-btn');
-    btn.disabled = true; btn.textContent = 'Sending...';
-    try {
-      await API.post('/api/auth/resend-otp', { email: currentEmail });
-      showToast("A new code has been sent.", "success");
-      setTimeout(() => { btn.disabled = false; btn.textContent = 'Resend Code'; }, 5000);
-    } catch(err) {
-      showToast(err.message || 'Failed to resend code.', "error");
-      btn.disabled = false; btn.textContent = 'Resend Code';
     }
   });
 </script>
