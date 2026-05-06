@@ -40,11 +40,11 @@ def seed():
     # --- Users ---
     pw = bcrypt.hashpw(b"password123", bcrypt.gensalt()).decode()
     users = [
-        User(name="Alex Rivera", email="alex@demo.com", password_hash=pw, xp=2450, streak=12, level="Elite II"),
-        User(name="Sarah Jenkins", email="sarah@demo.com", password_hash=pw, xp=3100, streak=21, level="Master I"),
-        User(name="Marcus Thorne", email="marcus@demo.com", password_hash=pw, xp=1800, streak=7, level="Advanced III"),
-        User(name="Priya Patel", email="priya@demo.com", password_hash=pw, xp=2900, streak=15, level="Elite III"),
-        User(name="James Liu", email="james@demo.com", password_hash=pw, xp=1200, streak=4, level="Intermediate II"),
+        User(name="Alex Rivera", email="alex@demo.com", password_hash=pw, xp=2450, streak=12, level="Elite II", is_verified=True),
+        User(name="Sarah Jenkins", email="sarah@demo.com", password_hash=pw, xp=3100, streak=21, level="Master I", is_verified=True),
+        User(name="Marcus Thorne", email="marcus@demo.com", password_hash=pw, xp=1800, streak=7, level="Advanced III", is_verified=True),
+        User(name="Priya Patel", email="priya@demo.com", password_hash=pw, xp=2900, streak=15, level="Elite III", is_verified=True),
+        User(name="James Liu", email="james@demo.com", password_hash=pw, xp=1200, streak=4, level="Intermediate II", is_verified=True),
     ]
     db.add_all(users)
     db.commit()

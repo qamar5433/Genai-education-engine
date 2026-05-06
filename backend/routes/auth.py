@@ -92,7 +92,11 @@ def signup():
         # Already registered
         if existing:
             if not existing.is_verified:
-                # Check cooldown before resending
+                # UPDATED: Allow updating password/name if they made a mistake during first registration
+                existing.name          = name
+                existing.password_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+                # Check cooldown before resending fresh OTP
                 wait = _resend_cooldown_remaining(existing)
                 if wait > 0:
                     return jsonify({
@@ -109,7 +113,7 @@ def signup():
 
                 success, _ = send_otp_email_sync(email, otp)
                 response = {
-                    "message": "Email already registered but not verified. A new code has been sent.",
+                    "message": "Account already exists but was not verified. Information updated and a new code sent.",
                     "requires_verification": True,
                     "email": email,
                 }
@@ -177,7 +181,13 @@ def login():
     db = SessionLocal()
     try:
         user = db.query(User).filter_by(email=email).first()
-        if not user or not bcrypt.checkpw(password.encode(), user.password_hash.encode()):
+        
+        if not user:
+            print(f"[AUTH] Login failed: User not found ({email})")
+            return jsonify({"error": "Invalid email or password."}), 401
+            
+        if not bcrypt.checkpw(password.encode(), user.password_hash.encode()):
+            print(f"[AUTH] Login failed: Password mismatch for {email}")
             return jsonify({"error": "Invalid email or password."}), 401
 
         # Block unverified users and send a fresh OTP
