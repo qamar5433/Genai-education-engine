@@ -36,7 +36,10 @@
           <input id="email" type="email" class="input-field" placeholder="alex@demo.com" required/>
         </div>
         <div style="margin-bottom:1.75rem">
-          <label class="input-label" for="password">Password</label>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem">
+            <label class="input-label" for="password" style="margin-bottom:0">Password</label>
+            <a href="forgot-password.html" style="font-size:.78rem;color:#60a5fa;text-decoration:none;font-weight:500">Forgot password?</a>
+          </div>
           <input id="password" type="password" class="input-field" placeholder="••••••••" required/>
         </div>
         <button id="login-btn" type="submit" class="btn btn-primary btn-full btn-lg">Sign In</button>
@@ -74,9 +77,9 @@
       window.location.href = '/dashboard.html';
     } catch(err) {
       if (err.requires_verification) {
-        showToast("Email not verified. Redirecting to verification page...", "info");
+        showToast("Email not verified. Redirecting to verification page…", "info");
         setTimeout(() => {
-          window.location.href = `/signup.html?email=${encodeURIComponent(currentEmail)}&verify=1`;
+          window.location.href = `/verify-email.html?email=${encodeURIComponent(currentEmail)}`;
         }, 1500);
       } else if (err.status === 401) {
         errEl.textContent = 'Invalid email or password.';

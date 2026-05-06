@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Verify Email – GENAI EDUCATION ENGINE</title>
+<meta name="description" content="Enter your verification code to activate your account."/>
+<link rel="stylesheet" href="css/main.css"/>
+<style>
+  .auth-bg{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+  .auth-orb{position:absolute;border-radius:50%;filter:blur(110px)}
+  .auth-orb-1{width:520px;height:520px;background:rgba(71,70,229,0.14);top:-12%;left:-8%}
+  .auth-orb-2{width:420px;height:420px;background:rgba(124,58,237,0.11);bottom:-8%;right:-6%}
+  .otp-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:1.5rem 0}
+  .otp-box{
+    width:100%;aspect-ratio:1;text-align:center;font-size:1.5rem;font-weight:800;
+    font-family:'Courier New',monospace;border:2px solid var(--border);border-radius:12px;
+    background:rgba(255,255,255,0.04);color:var(--text);outline:none;
+    transition:border-color .2s,box-shadow .2s,transform .15s;caret-color:transparent
+  }
+  .otp-box:focus{border-color:#4746E5;box-shadow:0 0 0 3px rgba(71,70,229,0.22);transform:scale(1.06)}
+  .otp-box.filled{border-color:rgba(71,70,229,0.6)}
+  .otp-box.shake{animation:shake .35s ease}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-5px)}40%,80%{transform:translateX(5px)}}
+  .status-msg{border-radius:10px;padding:.75rem 1rem;font-size:.85rem;font-weight:500;margin-bottom:1rem;display:none}
+  .status-error{background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+  .status-success{background:rgba(52,211,153,.09);border:1px solid rgba(52,211,153,.3);color:#6ee7b7}
+  .status-info{background:rgba(96,165,250,.09);border:1px solid rgba(96,165,250,.3);color:#93c5fd}
+  .resend-area{font-size:.82rem;color:var(--text-muted,#94a3b8);text-align:center;margin-top:.75rem;min-height:1.4rem}
+  .resend-link{background:none;border:none;color:#60a5fa;cursor:pointer;font-size:.85rem;font-weight:600;text-decoration:underline;padding:0}
+  .resend-link:disabled{color:var(--text-muted,#64748b);cursor:not-allowed;text-decoration:none}
+  .success-icon{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(52,211,153,.15),rgba(16,185,129,.25));border:2px solid rgba(52,211,153,.4);display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin:0 auto 1.25rem;animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+<div class="auth-bg"><div class="auth-orb auth-orb-1"></div><div class="auth-orb auth-orb-2"></div></div>
+<div class="auth-page">
+  <div class="auth-card fade-in-up" style="max-width:460px">
+    <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-bottom:2rem">
+      <img src="img/logo.png" alt="Logo" style="width:48px;height:48px;object-fit:contain">
+      <a href="/" style="text-decoration:none"><span class="text-gradient" style="font-size:1.5rem;font-weight:900">GENAI EDUCATION ENGINE</span></a>
+    </div>
+
+    <div class="card glass" style="padding:2rem">
+      <!-- Verify State -->
+      <div id="verify-state">
+        <div style="text-align:center;margin-bottom:1.5rem">
+          <div style="font-size:2.5rem;margin-bottom:.5rem">📬</div>
+          <h2 style="margin:0 0 .5rem;font-size:1.25rem;font-weight:800">Check Your Email</h2>
+          <p style="color:var(--text-muted,#94a3b8);font-size:.875rem;margin:0">
+            We sent a 6-digit code to<br>
+            <strong id="email-display" style="color:var(--text)"></strong>
+          </p>
+        </div>
+        <div id="status-msg" class="status-msg"></div>
+        <div class="otp-grid" id="otp-grid">
+          <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="otp-0"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="otp-1"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="otp-2"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="otp-3"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="otp-4"/>
+          <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="off" id="otp-5"/>
+        </div>
+        <button id="verify-btn" class="btn btn-primary btn-full btn-lg" style="margin-top:.25rem" disabled>Verify Email</button>
+        <div class="resend-area" id="resend-area"></div>
+        <p style="font-size:.78rem;color:var(--text-muted,#64748b);text-align:center;margin-top:1rem">
+          Wrong email? <a href="signup.html" style="color:#60a5fa">Back to Sign Up</a>
+        </p>
+      </div>
+      <!-- Success State -->
+      <div id="success-state" style="display:none;text-align:center;padding:.5rem 0">
+        <div class="success-icon">✅</div>
+        <h2 style="margin:0 0 .5rem;font-size:1.25rem;font-weight:800;color:#34d399">Email Verified!</h2>
+        <p style="color:var(--text-muted,#94a3b8);font-size:.875rem;margin:0 0 1.5rem">Your account is active. Redirecting to dashboard…</p>
+        <div style="width:100%;height:4px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden">
+          <div id="redirect-bar" style="height:100%;background:linear-gradient(90deg,#4746E5,#34d399);border-radius:99px;width:0%;transition:width 2.5s linear"></div>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:1.25rem;font-size:.8rem;color:var(--text-muted,#64748b)">
+      Already verified? <a href="login.html" style="color:#60a5fa;font-weight:600">Sign In</a>
+    </p>
+  </div>
+</div>
+
+<script src="js/theme.js"></script><script src="js/api.js"></script>
+<script>
+// ── Read email from URL ──────────────────────────────────────────────────────
+const params = new URLSearchParams(window.location.search);
+let currentEmail = (params.get('email') || '').trim();
+if (!currentEmail) window.location.href = '/signup.html';
+document.getElementById('email-display').textContent = currentEmail;
+Auth.me().then(u => { if (u) window.location.href = '/dashboard.html'; });
+
+// ── OTP Boxes ────────────────────────────────────────────────────────────────
+const boxes     = Array.from(document.querySelectorAll('.otp-box'));
+const verifyBtn = document.getElementById('verify-btn');
+const statusEl  = document.getElementById('status-msg');
+
+function getOtp()    { return boxes.map(b => b.value).join(''); }
+function allFilled() { return boxes.every(b => /^[0-9]$/.test(b.value)); }
+function syncBtn()   { verifyBtn.disabled = !allFilled(); }
+
+function showStatus(msg, type='error') {
+  statusEl.className = 'status-msg status-' + type;
+  statusEl.textContent = msg;
+  statusEl.style.display = 'block';
+}
+function hideStatus() { statusEl.style.display = 'none'; }
+
+function shakeBoxes() {
+  boxes.forEach(b => b.classList.add('shake'));
+  setTimeout(() => boxes.forEach(b => b.classList.remove('shake')), 400);
+}
+
+// Per-box input / keyboard navigation
+boxes.forEach((box, i) => {
+  box.addEventListener('keydown', e => {
+    if (e.key === 'Backspace' && !box.value && i > 0) {
+      boxes[i-1].focus(); boxes[i-1].value = ''; boxes[i-1].classList.remove('filled');
+    } else if (e.key === 'ArrowLeft'  && i > 0) boxes[i-1].focus();
+    else if   (e.key === 'ArrowRight' && i < 5) boxes[i+1].focus();
+  });
+  box.addEventListener('input', () => {
+    const v = box.value.replace(/\D/g,'');
+    box.value = v ? v[0] : '';
+    box.classList.toggle('filled', !!box.value);
+    if (box.value && i < 5) boxes[i+1].focus();
+    syncBtn(); hideStatus();
+  });
+});
+
+// Paste: fill all boxes at once
+document.getElementById('otp-grid').addEventListener('paste', e => {
+  e.preventDefault();
+  const text = (e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');
+  boxes.forEach((b, i) => { b.value = text[i]||''; b.classList.toggle('filled', !!b.value); });
+  syncBtn();
+  (boxes.find(b=>!b.value)||boxes[5]).focus();
+});
+boxes[0].focus();
+
+// ── Verify ───────────────────────────────────────────────────────────────────
+verifyBtn.addEventListener('click', async () => {
+  if (!allFilled()) return;
+  verifyBtn.disabled = true; verifyBtn.textContent = 'Verifying…'; hideStatus();
+  try {
+    await API.post('/api/auth/verify-otp', { email: currentEmail, otp: getOtp() });
+    document.getElementById('verify-state').style.display  = 'none';
+    document.getElementById('success-state').style.display = 'block';
+    requestAnimationFrame(() => { document.getElementById('redirect-bar').style.width = '100%'; });
+    setTimeout(() => window.location.href = '/dashboard.html', 2600);
+  } catch(err) {
+    showStatus(err.message || 'Verification failed. Please try again.');
+    shakeBoxes();
+    verifyBtn.disabled = false; verifyBtn.textContent = 'Verify Email';
+  }
+});
+
+// ── Resend Cooldown ──────────────────────────────────────────────────────────
+let cdInterval = null;
+function startCooldown(secs) {
+  clearInterval(cdInterval);
+  let rem = secs;
+  const area = document.getElementById('resend-area');
+  area.innerHTML = `Resend code in <strong>${rem}s</strong>`;
+  cdInterval = setInterval(() => {
+    rem--;
+    area.querySelector('strong') && (area.querySelector('strong').textContent = rem + 's');
+    if (rem <= 0) {
+      clearInterval(cdInterval);
+      area.innerHTML = `Didn't receive it? <button class="resend-link" onclick="doResend()">Resend Code</button>`;
+    }
+  }, 1000);
+}
+
+async function doResend() {
+  const btn = document.querySelector('#resend-area .resend-link');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+  hideStatus();
+  try {
+    const res = await API.post('/api/auth/resend-otp', { email: currentEmail });
+    if (res.dev_otp) showStatus('Dev mode – code: ' + res.dev_otp, 'info');
+    else             showStatus('A new code has been sent!', 'success');
+    boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
+    syncBtn(); boxes[0].focus();
+    startCooldown(60);
+  } catch(err) {
+    const wait = err.cooldown_remaining;
+    if (wait) { showStatus(`Please wait ${wait}s before requesting another code.`); startCooldown(wait); }
+    else       { showStatus(err.message || 'Failed to resend.'); if(btn){btn.disabled=false;btn.textContent='Resend Code';} }
+  }
+}
+
+// Start initial 60-sec cooldown (OTP just sent)
+startCooldown(60);
+</script>
+</body>
+</html>

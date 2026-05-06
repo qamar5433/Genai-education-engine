@@ -70,13 +70,11 @@
   
   let currentEmail = "";
 
-  // Check for verification redirect
+  // Check for verification redirect (legacy support)
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('verify') === '1' && urlParams.get('email')) {
-    currentEmail = urlParams.get('email');
-    document.getElementById('signup-form').style.display = 'none';
-    document.getElementById('otp-section').style.display = 'block';
-    document.getElementById('otp-email-display').textContent = currentEmail;
+    const em = urlParams.get('email');
+    window.location.href = `/verify-email.html?email=${encodeURIComponent(em)}`;
   }
 
   document.getElementById('password').addEventListener('input',function(){
@@ -101,10 +99,10 @@
       });
       
       if (res.requires_verification) {
-        document.getElementById('signup-form').style.display = 'none';
-        document.getElementById('otp-section').style.display = 'block';
-        document.getElementById('otp-email-display').textContent = currentEmail;
-        showToast("Verification code sent to your email.", "info");
+        showToast("Verification code sent! Redirecting…", "info");
+        setTimeout(() => {
+          window.location.href = `/verify-email.html?email=${encodeURIComponent(currentEmail)}`;
+        }, 800);
       } else {
         window.location.href='/dashboard.html';
       }
