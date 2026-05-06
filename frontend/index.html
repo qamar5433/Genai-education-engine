@@ -52,7 +52,21 @@
   .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
   .footer-link { color: #94a3b8; font-size: 0.875rem; text-decoration: none; display: block; margin-bottom: 0.6rem; transition: color 0.2s; }
   .footer-link:hover { color: #06B6D4; }
-  @media (max-width: 768px) { .landing-nav nav { display: none; } .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } }
+  @media (max-width: 768px) { 
+    .landing-nav nav { display: none; } 
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; } 
+    .hero { padding: 8rem 1.5rem 4rem; }
+    h1.hero-title { font-size: 2.25rem; }
+    .hero-sub { font-size: 1rem; }
+    .section { padding: 4rem 1.5rem; }
+    .stats-row { gap: 1.5rem; }
+    .stat-num { font-size: 2.25rem; }
+  }
+  @media (max-width: 480px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    .hero-title { font-size: 2rem !important; }
+    .stats-row { flex-direction: column; align-items: center; }
+  }
 </style>
 </head>
 <body>
@@ -62,13 +76,32 @@
     <img src="img/logo.png" alt="Logo" style="width:32px;height:32px;object-fit:contain">
     <a href="/" style="text-decoration:none"><span class="text-gradient-blue" style="font-size:1.25rem;font-weight:900">GENAI EDUCANTION ENGINE</span></a>
   </div>
-  <nav style="display:flex;gap:1rem">
+  
+  <!-- Desktop Nav -->
+  <nav class="hide-mobile" style="display:flex;gap:1rem">
     <a href="#features" class="btn btn-ghost" style="padding:0.4rem 0.9rem;font-size:0.85rem">Features</a>
     <a href="#how" class="btn btn-ghost" style="padding:0.4rem 0.9rem;font-size:0.85rem">How it works</a>
     <a href="login.html" class="btn btn-secondary" style="padding:0.4rem 0.9rem;font-size:0.85rem">Log In</a>
     <a href="signup.html" class="btn btn-primary" style="padding:0.4rem 0.9rem;font-size:0.85rem">Get Started</a>
   </nav>
+
+  <!-- Mobile Toggle -->
+  <button id="mobile-menu-toggle" class="show-mobile btn btn-ghost" style="padding: 0.5rem; border: none;">
+    <span class="material-symbols-outlined">menu</span>
+  </button>
 </header>
+
+<!-- Mobile Menu Overlay -->
+<div id="mobile-menu" class="show-mobile" style="position:fixed;inset:0;background:var(--surface);z-index:1000;display:none;flex-direction:column;padding:2rem;gap:1.5rem;text-align:center;">
+  <div style="display:flex;justify-content:flex-end;">
+    <button id="mobile-menu-close" class="btn btn-ghost" style="padding: 0.5rem; border: none;"><span class="material-symbols-outlined">close</span></button>
+  </div>
+  <a href="#features" class="btn btn-ghost" style="font-size:1.1rem">Features</a>
+  <a href="#how" class="btn btn-ghost" style="font-size:1.1rem">How it works</a>
+  <hr class="divider">
+  <a href="login.html" class="btn btn-secondary btn-lg">Log In</a>
+  <a href="signup.html" class="btn btn-primary btn-lg">Get Started Free</a>
+</div>
 
 <!-- Hero -->
 <section class="hero">
@@ -251,8 +284,31 @@
 <script>
   // Smooth scroll
   document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => { e.preventDefault(); document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'}); });
+    a.addEventListener('click', e => { 
+      e.preventDefault(); 
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({behavior:'smooth'});
+      // Close mobile menu if open
+      document.getElementById('mobile-menu').style.display = 'none';
+      document.body.style.overflow = '';
+    });
   });
+
+  // Mobile Menu Logic
+  const mobileMenuBtn = document.getElementById('mobile-menu-toggle');
+  const mobileMenuClose = document.getElementById('mobile-menu-close');
+  const mobileMenu = document.getElementById('mobile-menu');
+
+  if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    });
+    mobileMenuClose.addEventListener('click', () => {
+      mobileMenu.style.display = 'none';
+      document.body.style.overflow = '';
+    });
+  }
+
   // Check if already logged in
   Auth.me().then(user => { if(user) { /* already logged in, could redirect */ } });
 </script>

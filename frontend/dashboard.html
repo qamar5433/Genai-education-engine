@@ -91,12 +91,12 @@
   <div class="page-content">
     <!-- Welcome -->
     <div class="welcome-section">
-      <div>
+      <div style="flex:1; min-width: 280px;" class="text-mobile-center">
         <p style="color:var(--primary);font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.35rem">GOOD MORNING, <span id="user-display-name">—</span></p>
         <h2 style="font-size:1.6rem;font-weight:800;margin-bottom:.35rem;color:var(--text)">Welcome back to your learning hub</h2>
         <p class="muted" style="font-size:.9rem" id="dash-subtitle">Loading your progress...</p>
       </div>
-      <div class="quick-stats" id="quick-stats">
+      <div class="quick-stats" id="quick-stats" style="flex: 1.5; min-width: 280px;">
         <div class="card stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.12)"><span class="material-symbols-outlined" style="color:#d97706;font-size:1.2rem">local_fire_department</span></div><div class="stat-value" id="stat-streak">—</div><div class="stat-label">Streak</div></div>
         <div class="card stat-card"><div class="stat-icon" style="background:rgba(71,70,229,.10)"><span class="material-symbols-outlined" style="color:#4746E5;font-size:1.2rem">bolt</span></div><div class="stat-value" id="stat-xp">—</div><div class="stat-label">XP Earned</div></div>
         <div class="card stat-card"><div class="stat-icon" style="background:rgba(6,182,212,.10)"><span class="material-symbols-outlined" style="color:#06B6D4;font-size:1.2rem">grade</span></div><div class="stat-value" id="stat-level">—</div><div class="stat-label">Level</div></div>
@@ -190,13 +190,13 @@
       </div>
 
       <!-- Input row -->
-      <div style="display:flex;gap:.75rem;align-items:stretch;margin-bottom:1.25rem">
+      <div style="display:flex;gap:.75rem;align-items:stretch;margin-bottom:1.25rem" class="flex-mobile-col">
         <div style="flex:1;position:relative">
           <span class="material-symbols-outlined" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);font-size:1.1rem;color:var(--text-light);pointer-events:none">search</span>
           <input id="cge-topic"
             type="text"
             class="input-field"
-            placeholder="Enter a topic  e.g. Quantum Mechanics, Machine Learning, Newton's Laws…"
+            placeholder="Enter a topic  e.g. Quantum Mechanics, Machine Learning…"
             style="padding-left:2.5rem"
             onkeydown="if(event.key==='Enter')generateContent()"
           />
@@ -209,25 +209,26 @@
 
       <!-- Quick topic chips -->
       <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.5rem" id="cge-suggestions">
-        <span style="font-size:.72rem;color:var(--text-light);font-weight:600;align-self:center;margin-right:.25rem">Try:</span>
+        <span style="font-size:.72rem;color:var(--text-light);font-weight:600;align-self:center;margin-right:.25rem" class="hide-mobile">Try:</span>
       </div>
 
       <!-- Output panel -->
       <div id="cge-output-wrap" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:0.75rem">
           <div style="display:flex;align-items:center;gap:.5rem">
             <span id="cge-out-icon" class="material-symbols-outlined" style="font-size:1rem;color:var(--primary)">description</span>
             <span id="cge-out-label" style="font-size:.8rem;font-weight:700;color:var(--text)">Notes</span>
             <span id="cge-out-topic" class="badge badge-cyan" style="font-size:.65rem"></span>
           </div>
-          <div style="display:flex;gap:.5rem">
-            <button onclick="copyContent()" class="btn btn-secondary" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem">
+          <div style="display:flex;gap:.5rem;width:100%;justify-content:flex-start" class="show-mobile"></div>
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="cge-actions">
+            <button onclick="copyContent()" class="btn btn-secondary" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem;flex:1">
               <span class="material-symbols-outlined" style="font-size:.9rem">content_copy</span>Copy
             </button>
-            <button onclick="downloadContent()" class="btn btn-secondary" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem">
+            <button onclick="downloadContent()" class="btn btn-secondary" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem;flex:1">
               <span class="material-symbols-outlined" style="font-size:.9rem">download</span>Save
             </button>
-            <button onclick="generateContent()" class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem">
+            <button onclick="generateContent()" class="btn btn-ghost" style="padding:.35rem .75rem;font-size:.75rem;gap:.3rem;flex:1">
               <span class="material-symbols-outlined" style="font-size:.9rem">refresh</span>Regenerate
             </button>
           </div>

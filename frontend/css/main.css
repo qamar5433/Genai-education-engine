@@ -250,13 +250,45 @@ body {
 .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' 0, 'wght' 400; }
 
 /* ===== Responsive ===== */
+@media (max-width: 1024px) {
+  .page-content { padding: 1.5rem 2rem; }
+}
+
 @media (max-width: 768px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
+  .sidebar { transform: translateX(-100%); width: 260px; }
+  .sidebar.open { transform: translateX(0); box-shadow: 0 0 50px rgba(0,0,0,0.3); }
+  .sidebar-overlay { 
+    position: fixed; inset: 0; background: rgba(15,23,42,0.4); 
+    backdrop-filter: blur(4px); z-index: 45; opacity: 0; pointer-events: none; 
+    transition: opacity 0.3s; 
+  }
+  .sidebar.open + .sidebar-overlay { opacity: 1; pointer-events: auto; }
+  
   .main-content { margin-left: 0; }
   .page-content { padding: 1.25rem 1rem; }
-  .topbar { padding: 0 1rem; }
+  .topbar { padding: 0 1rem; height: 56px; }
+  #menu-btn { display: flex !important; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--surface-low); }
+  
+  .grid-2 { grid-template-columns: 1fr !important; }
+  .quick-stats { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
+  .module-grid { grid-template-columns: 1fr !important; }
 }
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.75rem !important; }
+  h2 { font-size: 1.5rem !important; }
+  .btn { width: 100%; }
+  .topbar-user-name { display: none; }
+  .stat-card { flex-direction: row; text-align: left; padding: 1rem; gap: 1rem; }
+  .stat-icon { margin-bottom: 0; }
+  .page-content { padding: 1rem 0.75rem; }
+}
+
+/* Utilities for visibility */
+.hide-mobile { @media (max-width: 768px) { display: none !important; } }
+.show-mobile { display: none; @media (max-width: 768px) { display: block !important; } }
+.flex-mobile-col { @media (max-width: 768px) { flex-direction: column !important; } }
+.text-mobile-center { @media (max-width: 480px) { text-align: center !important; } }
 
 /* ===== Notification Toast ===== */
 .toast {
@@ -277,6 +309,12 @@ body {
   background: linear-gradient(135deg, #eef2ff 0%, #f0fdfa 50%, #f0fdf4 100%);
 }
 .auth-card { width: 100%; max-width: 420px; }
+@media (max-width: 480px) {
+  .auth-page { padding: 1rem; }
+  .auth-card { padding: 0; }
+  .auth-card .card { padding: 1.5rem !important; border-radius: var(--radius-lg); }
+  .auth-card img { width: 48px !important; height: 48px !important; }
+}
 
 /* ===== Quiz player ===== */
 .quiz-option {

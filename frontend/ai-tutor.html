@@ -24,6 +24,12 @@
   .suggestion-chip{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:var(--radius-full);padding:.3rem .8rem;font-size:.8rem;color:#93c5fd;cursor:pointer;transition:background .2s;white-space:nowrap}
   .suggestion-chip:hover{background:rgba(59,130,246,.2)}
   .tutor-avatar{width:2.25rem;height:2.25rem;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  @media (max-width: 768px) {
+    .chat-sidebar { display: none; }
+    .chat-header { padding: 0.75rem 1rem; }
+    .chat-messages { padding: 1rem; }
+    .chat-input-area { padding: 0.75rem 1rem; }
+  }
 </style>
 </head>
 <body>

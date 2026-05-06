@@ -19,6 +19,16 @@
   .result-detail{padding:.75rem 1rem;border-radius:var(--radius-md);margin-bottom:.5rem;border:1px solid}
   .result-correct{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)}
   .result-wrong{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25)}
+  @media (max-width: 768px) {
+    #custom-setup { flex-direction: column; align-items: flex-start !important; }
+    #custom-setup .input-field { width: 100% !important; }
+    #custom-setup > div { width: 100%; }
+    #custom-setup div[style*="display:flex"] { flex-direction: column; }
+    #custom-setup button { width: 100%; justify-content: center; }
+  }
+  @media (max-width: 480px) {
+    #quiz-result-view div[style*="grid-template-columns:repeat(3,1fr)"] { grid-template-columns: 1fr !important; }
+  }
 </style>
 </head>
 <body>
