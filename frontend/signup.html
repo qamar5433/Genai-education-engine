@@ -11,8 +11,7 @@
 </style>
 </head>
 <body class="auth-page">
-<div class="auth-container">
-  <div class="auth-card glass">
+  <div class="auth-card glass fade-in-up">
     <div class="auth-header">
       <img src="img/logo.png" alt="Logo" class="auth-logo">
       <h1>Create Account</h1>
@@ -40,7 +39,6 @@
       Already have an account? <a href="login.html" style="color:var(--primary);font-weight:600;text-decoration:none">Sign In</a>
     </p>
   </div>
-</div>
 <script src="js/theme.js"></script><script src="js/api.js?v=2"></script>
 <script>
   Auth.me().then(u=>{if(u)window.location.href='/dashboard.html'});
