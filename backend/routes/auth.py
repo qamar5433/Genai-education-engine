@@ -345,9 +345,9 @@ def resend_otp():
 
         response = {"message": "A new verification code has been sent to your email."}
         if not success:
-            # Fallback: expose OTP in response (dev/misconfigured Brevo)
-            response["dev_otp"]     = otp
-            response["email_error"] = err_msg
+            # If email fails, we log it server-side but do NOT leak it to the user.
+            print(f"FAILED TO SEND OTP TO {email}: {err_msg}")
+            return jsonify({"error": "Failed to send verification email. Please check server configuration."}), 500
 
         return jsonify(response), 200
 
@@ -400,9 +400,9 @@ def forgot_password():
             "email":   email,
         }
         if not success:
-            response["dev_otp"]     = otp
-            response["email_error"] = err_msg
-
+            print(f"FAILED TO SEND RESET OTP TO {email}: {err_msg}")
+            # We still return 200 to prevent user enumeration, but it won't have dev_otp
+        
         return jsonify(response), 200
 
     finally:
