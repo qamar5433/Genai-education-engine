@@ -34,7 +34,7 @@ class User(Base):
     created_at    = Column(DateTime, default=datetime.utcnow)
 
     # ── Email verification ────────────────────────────────────────────────
-    is_verified    = Column(Boolean,    default=True)
+    is_verified    = Column(Boolean,    default=False)
     otp_code       = Column(String(10), nullable=True)
     otp_expires_at = Column(DateTime,   nullable=True)
 

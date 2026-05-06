@@ -132,24 +132,35 @@ def signup():
             name=name,
             email=email,
             password_hash=pw_hash,
-            is_verified=True,  # Auto-verify all users
-            otp_code=None,
-            otp_expires_at=None,
-            otp_resend_at=None,
+            is_verified=not email_on,           # auto-verify when email not configured
+            otp_code=otp if email_on else None,
+            otp_expires_at=_otp_expiry() if email_on else None,
+            otp_resend_at=datetime.utcnow() if email_on else None,
         )
         db.add(user)
         db.commit()
         db.refresh(user)
 
-        # Log them in immediately
-        session["user_id"]   = user.id
-        session["user_name"] = user.name
+        # Dev mode (no Brevo configured) → log in immediately
+        if not email_on:
+            session["user_id"]   = user.id
+            session["user_name"] = user.name
+            return jsonify({
+                "message": "Account created. (Email verification disabled — Brevo not configured)",
+                "requires_verification": False,
+                "email": email,
+                "user": {"id": user.id, "name": user.name, "email": user.email},
+            }), 201
+
+        # Send OTP synchronously to ensure it's dispatched before redirecting the user
+        success, err_msg = send_otp_email_sync(email, otp)
+        if not success:
+             print(f"[AUTH] Signup email FAILED for {email}: {err_msg}")
 
         return jsonify({
-            "message": "Account created successfully.",
-            "requires_verification": False,
+            "message": "Account created. Please verify your email.",
+            "requires_verification": True,
             "email": email,
-            "user": {"id": user.id, "name": user.name, "email": user.email},
         }), 201
 
     finally:
@@ -181,7 +192,23 @@ def login():
             print(f"[AUTH] Login failed: Password mismatch for {email}")
             return jsonify({"error": "Invalid email or password."}), 401
 
-        # [MODIFIED] Removed verification check - all users can login immediately
+        # Block unverified users and send a fresh OTP
+        if not user.is_verified:
+            wait = _resend_cooldown_remaining(user)
+            if wait == 0:
+                # Safe to send a new OTP
+                otp = _generate_otp()
+                user.otp_code       = otp
+                user.otp_expires_at = _otp_expiry()
+                user.otp_resend_at  = datetime.utcnow()
+                db.commit()
+                send_otp_email_sync(email, otp)
+
+            return jsonify({
+                "error": "Email not verified. A verification code has been sent.",
+                "requires_verification": True,
+                "email": email,
+            }), 403
 
         session["user_id"]   = user.id
         session["user_name"] = user.name
