@@ -182,8 +182,7 @@ async function doResend() {
   hideStatus();
   try {
     const res = await API.post('/api/auth/resend-otp', { email: currentEmail });
-    if (res.dev_otp) showStatus('Dev mode – code: ' + res.dev_otp, 'info');
-    else             showStatus('A new code has been sent!', 'success');
+    showStatus('A new code has been sent!', 'success');
     boxes.forEach(b => { b.value = ''; b.classList.remove('filled'); });
     syncBtn(); boxes[0].focus();
     startCooldown(60);

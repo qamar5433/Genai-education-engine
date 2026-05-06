@@ -4,7 +4,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from flask import Flask, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
-load_dotenv()
+# Ensure .env is loaded from the root directory regardless of where app.py is run
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+load_dotenv(os.path.join(ROOT_DIR, ".env"))
 from database import init_db
 
 app = Flask(__name__, static_folder=None)
@@ -80,6 +82,6 @@ with app.app_context():
         db.close()
 
 if __name__ == "__main__":
-    print("GENAI EDUCANTION ENGINE server starting...")
-    print("Open: http://localhost:5000")
+    from utils.mail import is_email_enabled
+    print(f"Email Verification: {'ENABLED (Brevo)' if is_email_enabled() else 'DISABLED (Dev Mode)'}")
     app.run(debug=True, port=5000, host="0.0.0.0")
