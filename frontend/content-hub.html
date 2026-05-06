@@ -108,18 +108,20 @@
 
     <!-- ===== IMPORT SECTION ===== -->
     <div class="card" style="margin-bottom:2rem;border-color:rgba(99,102,241,.2)">
-      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem">
-        <div style="width:2.5rem;height:2.5rem;border-radius:.75rem;background:rgba(99,102,241,.15);display:flex;align-items:center;justify-content:center">
-          <span class="material-symbols-outlined" style="color:#818cf8">cloud_upload</span>
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:.75rem;flex:1;min-width:280px">
+          <div style="width:2.5rem;height:2.5rem;border-radius:.75rem;background:rgba(99,102,241,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span class="material-symbols-outlined" style="color:#818cf8">cloud_upload</span>
+          </div>
+          <div>
+            <div style="font-weight:800;font-size:1rem">Import & Analyse Content</div>
+            <div style="font-size:.78rem;color:var(--text-muted)">Upload a file or paste text</div>
+          </div>
         </div>
-        <div>
-          <div style="font-weight:800;font-size:1rem">Import & Analyse Content</div>
-          <div style="font-size:.78rem;color:var(--text-muted)">Upload a file or paste text — AI extracts key insights instantly</div>
-        </div>
-        <div style="margin-left:auto;display:flex;gap:.5rem">
-          <button id="tab-file-btn" class="parse-tab active" onclick="switchInputTab('file')" style="font-size:.75rem;padding:.3rem .8rem">📁 File</button>
-          <button id="tab-paste-btn" class="parse-tab" onclick="switchInputTab('paste')" style="font-size:.75rem;padding:.3rem .8rem">📋 Paste Text</button>
-          <button id="tab-youtube-btn" class="parse-tab" onclick="switchInputTab('youtube')" style="font-size:.75rem;padding:.3rem .8rem">▶️ YouTube</button>
+        <div class="parse-tabs" style="display:flex;gap:.5rem;width:100%;justify-content:flex-start;margin-top:0.5rem">
+          <button id="tab-file-btn" class="parse-tab active" onclick="switchInputTab('file')" style="flex:1">📁 File</button>
+          <button id="tab-paste-btn" class="parse-tab" onclick="switchInputTab('paste')" style="flex:1">📋 Paste</button>
+          <button id="tab-youtube-btn" class="parse-tab" onclick="switchInputTab('youtube')" style="flex:1">▶️ YouTube</button>
         </div>
       </div>
 

@@ -25,6 +25,15 @@
   .heatmap-legend{display:flex;align-items:center;gap:.35rem;font-size:.7rem;color:var(--text-muted)}
   .heatmap-legend span{width:12px;height:12px;border-radius:2px;display:inline-block}
   @media(max-width:900px){.charts-grid,.charts-grid-2{grid-template-columns:1fr}}
+  @media(max-width:768px){
+    .prediction-card { flex-direction: column; text-align: center; gap: 1rem; padding: 1.25rem; }
+    .analytics-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+  }
+  @media(max-width:480px){
+    .analytics-grid { grid-template-columns: 1fr !important; }
+    #topic-mastery-list { grid-template-columns: 1fr !important; }
+  }
 </style>
 </head>
 <body>

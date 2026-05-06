@@ -161,7 +161,7 @@ body {
   padding: 0 1.5rem;
   box-shadow: var(--shadow-sm);
 }
-.page-content { padding: 2rem 2.5rem; max-width: 1280px; }
+.page-content { padding: 2rem 2.5rem; max-width: 1440px; margin: 0 auto; }
 
 /* ===== Cards ===== */
 .card {
@@ -265,23 +265,51 @@ body {
   .sidebar.open + .sidebar-overlay { opacity: 1; pointer-events: auto; }
   
   .main-content { margin-left: 0; }
-  .page-content { padding: 1.25rem 1rem; }
+  .page-content { padding: 1.25rem 0.75rem; } /* Reduced padding for mobile */
   .topbar { padding: 0 1rem; height: 56px; }
   #menu-btn { display: flex !important; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--surface-low); }
   
-  .grid-2 { grid-template-columns: 1fr !important; }
-  .quick-stats { grid-template-columns: 1fr !important; gap: 0.75rem !important; }
-  .module-grid { grid-template-columns: 1fr !important; }
+  .grid-2 { grid-template-columns: 1fr !important; gap: 1rem !important; }
+  .quick-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 0.75rem !important; }
+  .module-grid { grid-template-columns: 1fr !important; gap: 1rem !important; }
+
+  /* Horizontal scroll for tabs on mobile */
+  .filter-tabs, .parse-tabs, #cge-tabs { 
+    flex-wrap: nowrap !important; 
+    overflow-x: auto; 
+    padding-bottom: 0.5rem; 
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-tabs::-webkit-scrollbar, .parse-tabs::-webkit-scrollbar, #cge-tabs::-webkit-scrollbar { display: none; }
+  .filter-tab, .parse-tab, .cge-tab { flex-shrink: 0; }
+
+  /* Adjust cards for mobile to prevent overlap */
+  .continue-card .btn { margin-top: 1rem; }
+  .course-grid { grid-template-columns: 1fr !important; }
+  
+  /* Fix overlapping "Enroll" button in Available Courses */
+  #available-grid .card { flex-wrap: wrap; justify-content: space-between; gap: 0.75rem; }
+  #available-grid .card > div:nth-child(2) { flex: 1; min-width: 150px; }
+  #available-grid .card > button { width: 100%; }
 }
 
 @media (max-width: 480px) {
-  h1 { font-size: 1.75rem !important; }
-  h2 { font-size: 1.5rem !important; }
-  .btn { width: 100%; }
+  h1 { font-size: 1.5rem !important; }
+  h2 { font-size: 1.35rem !important; }
+  .btn { width: 100%; padding: 0.75rem 1rem !important; }
   .topbar-user-name { display: none; }
-  .stat-card { flex-direction: row; text-align: left; padding: 1rem; gap: 1rem; }
-  .stat-icon { margin-bottom: 0; }
-  .page-content { padding: 1rem 0.75rem; }
+  .stat-card { flex-direction: row; text-align: left; padding: 0.85rem !important; gap: 0.75rem !important; }
+  .stat-icon { width: 2rem !important; height: 2rem !important; margin-bottom: 0 !important; }
+  .stat-value { font-size: 1.1rem !important; }
+  .stat-label { font-size: 0.6rem !important; }
+  .page-content { padding: 0.75rem; }
+  
+  /* Quick stats 1-column on very small screens */
+  .quick-stats { grid-template-columns: 1fr !important; }
+  
+  /* Modal adjustments */
+  .quiz-modal, .modal-card { padding: 1rem !important; border-radius: var(--radius-lg) !important; width: 95% !important; }
 }
 
 /* Utilities for visibility */

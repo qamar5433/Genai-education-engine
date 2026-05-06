@@ -20,8 +20,18 @@
   .type-card.active{border-color:var(--primary);background:var(--primary-bg);}
   .output-box{background:var(--surface-low);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.75rem;font-size:.9rem;line-height:1.9;color:var(--text);white-space:pre-wrap;font-family:'Inter',sans-serif;min-height:300px;max-height:600px;overflow-y:auto;}
   .stat-pill{display:inline-flex;align-items:center;gap:.35rem;padding:.3rem .75rem;background:var(--surface-low);border:1px solid var(--border);border-radius:var(--radius-full);font-size:.72rem;font-weight:600;color:var(--text-muted);}
-  .layout{display:grid;grid-template-columns:280px 1fr;gap:1.5rem;align-items:start;}
-  @media(max-width:900px){.layout{grid-template-columns:1fr;}}
+  @media(max-width:900px){
+    .layout{grid-template-columns:1fr;}
+    .hero-section { padding: 1.5rem !important; }
+  }
+  @media(max-width:768px){
+    #type-cards { flex-direction: row !important; overflow-x: auto; padding-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+    .type-card { flex-shrink: 0; width: 140px; padding: 0.75rem !important; }
+    .type-card span { font-size: 1.25rem !important; }
+    .type-card div:last-child { display: none; } /* Hide descriptions on mobile */
+    .stat-pill { font-size: 0.65rem; padding: 0.25rem 0.5rem; }
+    #cge-topic { font-size: 0.85rem; }
+  }
 </style>
 </head>
 <body>
